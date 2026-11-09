@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-09-3">
+<meta name="build" content="2026-11-09-4">
 <title>우리 반 체크판</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
@@ -1102,26 +1102,21 @@ window.addEventListener("resize",kbFit);
 
 
 /* ===== 자동 업데이트 =====
-   웹 주소로 열었을 때 1분마다 새 버전이 있는지 확인해요.
-   새 버전이면 위에 안내를 띄우고, 체크판 화면에서 타이머·입력이 없을 때 30초 쉬면 새로고침해요.
-   학생 기록(localStorage)은 그대로 남아요. */
+   웹 주소로 열었을 때 30초마다 새 버전이 있는지 확인하고, 있으면 알림 없이 바로 새로고침해요.
+   타이머가 돌거나 글을 입력하는 중이면 그게 끝나자마자 새로고침해요. 학생 기록(localStorage)은 그대로 남아요. */
 (function(){
   if(!/^https?:$/.test(location.protocol))return;
   const cur=(document.querySelector('meta[name="build"]')||{}).content||"";
-  let last=Date.now(),ready=false;
-  ["pointerdown","keydown","touchstart"].forEach(e=>document.addEventListener(e,()=>{last=Date.now()},{passive:true,capture:true}));
-  const bar=()=>{if(document.getElementById("updbar"))return;const b=document.createElement("div");b.id="updbar";
-    b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 6px);transform:translateX(-50%);z-index:99999;background:var(--pri);color:#fff;font-weight:800;padding:8px 14px;border-radius:99px;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;font-size:clamp(12px,1.6vw,18px)";
-    b.textContent="🔄 새 버전이 있어요 — 눌러서 바로 적용";b.onclick=()=>location.reload();document.body.appendChild(b)};
-  const safe=()=>{const a=document.activeElement;
-    return mode==="board"&&!TM.run&&!TM.ring&&!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))&&Date.now()-last>30000};
+  let ready=false;
+  const busy=()=>{const a=document.activeElement;return TM.run||TM.ring||!!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))};
+  const go=()=>{if(ready&&!busy())location.reload()};
   async function check(){try{
     const r=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"});if(!r.ok)return;
     const m=(await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if(m&&cur&&m[1]!==cur){ready=true;bar()}}catch(e){}}
-  setInterval(check,60000);setTimeout(check,5000);
+    if(m&&cur&&m[1]!==cur){ready=true;go()}}catch(e){}}
+  setInterval(check,30000);setTimeout(check,3000);
   document.addEventListener("visibilitychange",()=>{if(!document.hidden)check()});
-  setInterval(()=>{if(ready&&safe())location.reload()},5000);
+  setInterval(go,1000);
 })();
 
 render();tick();
