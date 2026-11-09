@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-09-4">
+<meta name="build" content="2026-11-09-5">
 <title>우리 반 체크판</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
@@ -167,7 +167,7 @@ button.warnon{background:#f2b705!important;color:#22263a!important}
 .ttg b{display:flex;align-items:center;justify-content:center;font-size:clamp(14px,1.9vw,19px);background:var(--chip);border-radius:8px;padding:6px 4px}
 .ttg input{width:100%;min-width:0;font:inherit;font-size:clamp(14px,1.9vw,19px);padding:8px 4px;text-align:center;border-radius:8px;border:2px solid var(--line);background:var(--card);color:var(--ink);-webkit-user-select:text;user-select:text}
 .ttg b.td{background:var(--pri);color:#fff}
-#slp{display:none;position:fixed;left:calc(env(safe-area-inset-left,0px) + 12px);bottom:calc(env(safe-area-inset-bottom,0px) + 12px);z-index:9000;background:#22263a;color:#fff;font-size:clamp(14px,1.8vw,20px);padding:10px 16px;border-radius:99px;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#slp{display:none;position:fixed;right:calc(env(safe-area-inset-right,0px) + 14px);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:9000;background:#22263a;color:#fff;font-size:clamp(18px,2.6vw,30px);padding:14px 26px;border-radius:99px;box-shadow:0 4px 14px rgba(0,0,0,.3)}
 #off{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:9999;cursor:none}
 /* ===== 화면 키보드 ===== */
 #kb{display:none;position:fixed;left:0;right:0;bottom:0;z-index:55;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:2px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.22);-webkit-user-select:none;user-select:none;touch-action:manipulation}
@@ -631,7 +631,7 @@ function showOm(){
   m.style.display="block";clearTimeout(omT);omT=setTimeout(hideOm,5000);
 }
 let offLast=0,offT=0;
-/* 수업 중 두 번 터치로 켜면 그 수업이 끝날 때까지 켜져 있어요. 끄려면 왼쪽 아래 '🌑 화면 끄기'를 눌러요. */
+/* 수업 중 두 번 터치로 켜면 그 수업이 끝날 때까지 켜져 있어요. 끄려면 오른쪽 아래 '🌑 화면 끄기'를 눌러요. */
 function wakeTillEnd(){const n=new Date(),now=n.getHours()*60+n.getMinutes(),r=sched.rows.find(r=>r[3]&&now>=tm(r[1])&&now<tm(r[2]));wake=r?new Date(n.getFullYear(),n.getMonth(),n.getDate(),0,tm(r[2]),0,0).getTime():0}
 function sleepNow(){wake=0;tick()}
 document.getElementById("off").addEventListener("click",e=>{
@@ -720,11 +720,8 @@ function drawSD(){
 const UPD_VER="2026-11-09-1";
 const UPD=[
   {date:"2026-11-09",items:[
-    "📮 건의사항을 반영했어요!",
     "노래는 월·목 신청곡 추첨이 끝날 때마다 번호마다 3곡씩 다시 신청할 수 있어요. 목요일 추첨 뒤에 월요일 노래를 미리 신청하세요.",
-    "수업 중에 화면을 켜면 그 수업이 끝날 때까지 켜져 있어요. 다 봤으면 왼쪽 아래 ‘🌑 화면 끄기’를 눌러 주세요.",
-    "‘⚠ 경고주기’ 버튼이 생겼어요. 이름을 한 번 누르면 ⚠️, 두 번 누르면 ❌가 표시돼요.",
-    "명단에 번호가 함께 저장돼서, 빠진 번호가 있어도 신청할 때 내 번호가 맞게 나와요."]},
+    "수업 중에 화면을 켜면 그 수업이 끝날 때까지 켜져 있어요. 다 봤으면 오른쪽 아래 ‘🌑 화면 끄기’를 눌러 주세요."]},
   {date:"2026-10-28",items:[
     "신청곡과 놀이는 내 번호를 적고 신청해요. 노래는 일주일에 3곡, 놀이는 일주일에 1번까지예요.",
     "‘이름 숨기기’에 체크하면 신청 목록에 ‘익명’으로 나와요.",
