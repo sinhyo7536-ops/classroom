@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-09-8">
+<meta name="build" content="2026-11-09-9">
 <title>우리 반 체크판</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
@@ -225,7 +225,7 @@ cfg=load(KC,cfg); chk=load(KD,chk);
 if(!cfg.names.length){mode="setup"}
 const KS="classcheck:sched2";
 const DEF=[["아침시간","08:30","09:00",0],["1교시","09:00","09:40",1],["쉬는시간","09:40","09:50",0],["2교시","09:50","10:30",1],["쉬는시간","10:30","10:40",0],["3교시","10:40","11:20",1],["쉬는시간","11:20","11:30",0],["4교시","11:30","12:10",1],["쉬는시간","12:10","12:20",0],["5교시","12:20","13:00",1],["점심시간","13:00","13:50",0],["6교시","13:50","14:30",1]];
-let sched=load(KS,null)||{on:true,rows:JSON.parse(JSON.stringify(DEF))}, wake=0, taps=[];
+let sched=load(KS,null)||{on:true,rows:JSON.parse(JSON.stringify(DEF))}, wake=+load("classcheck:wake",0)||0, taps=[]; /* 수업 중 화면을 켜 둔 시각(연동돼요) */
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 /* 명단 한 줄: "12 홍길동"처럼 번호와 이름. 번호를 빼면 줄 순서가 번호가 돼요. */
 const lineOf=s=>{const m=s.match(/^(\d{1,2})\s*(?:번|\.|\)|:|-)?\s+(.+)$/)||s.match(/^(\d{1,2})(?:번|\.|\)|:|-)\s*(.+)$/);return m?{no:+m[1],n:m[2].trim()}:{no:0,n:s}};
@@ -635,8 +635,8 @@ function showOm(){
 }
 let offLast=0,offT=0;
 /* 수업 중 두 번 터치로 켜면 그 수업이 끝날 때까지 켜져 있어요. 끄려면 오른쪽 아래 '🌑 화면 끄기'를 눌러요. */
-function wakeTillEnd(){const n=new Date(),now=n.getHours()*60+n.getMinutes(),r=sched.rows.find(r=>r[3]&&now>=tm(r[1])&&now<tm(r[2]));wake=r?new Date(n.getFullYear(),n.getMonth(),n.getDate(),0,tm(r[2]),0,0).getTime():0}
-function sleepNow(){wake=0;tick()}
+function wakeTillEnd(){const n=new Date(),now=n.getHours()*60+n.getMinutes(),r=sched.rows.find(r=>r[3]&&now>=tm(r[1])&&now<tm(r[2]));wake=r?new Date(n.getFullYear(),n.getMonth(),n.getDate(),0,tm(r[2]),0,0).getTime():0;save("classcheck:wake",wake)}
+function sleepNow(){wake=0;save("classcheck:wake",0);tick()}
 document.getElementById("off").addEventListener("click",e=>{
   const m=document.getElementById("offm"),inM=!!e.target.closest("#offm"),b=e.target.closest("#offm button");
   if(b){
@@ -1136,7 +1136,7 @@ const SYNC_ROOM="a75c1574482b6842";
     if(typing||modal)return; /* 입력 중이면 끝난 뒤에 화면을 다시 그려요 */
     dirty=false;
     chk=load(KD,chk);sched=load(KS,sched);songs=load(KSG,songs);sbox=load(KBOX,sbox);
-    gbox=load(KGB,gbox);gpick=load(KGP,gpick);tt=load(KTT,tt);sugg=load(KSUG,sugg);
+    gbox=load(KGB,gbox);gpick=load(KGP,gpick);tt=load(KTT,tt);sugg=load(KSUG,sugg);wake=+load("classcheck:wake",wake)||0;
     if(["board","song","game","sugg","role"].includes(mode))render();
     tick();
   }
