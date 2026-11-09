@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-09-7">
+<meta name="build" content="2026-11-09-8">
 <title>우리 반 체크판</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
@@ -1105,7 +1105,7 @@ window.addEventListener("resize",kbFit);
    데스크탑과 전자칠판의 기록을 실시간으로 맞춰요. 명단·비밀번호는 기기마다 따로예요.
    학생 이름은 보내지 않아요: 보낼 때 "§번호§"로 바꾸고, 받을 때 이 기기 명단의 이름으로 되돌려요.
    키마다 가장 나중에 바꾼 기록이 이겨요. */
-const SYNC_URL="";
+const SYNC_URL="https://classroom-73fdf-default-rtdb.asia-southeast1.firebasedatabase.app";
 const SYNC_ROOM="a75c1574482b6842";
 (function(){
   if(!SYNC_URL)return;
