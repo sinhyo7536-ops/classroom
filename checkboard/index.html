@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-09-1">
+<meta name="build" content="2026-11-09-2">
 <title>우리 반 체크판</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
@@ -218,12 +218,18 @@ function load(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 cfg=load(KC,cfg); chk=load(KD,chk);
 if(!cfg.names.length){mode="setup"}
-draft=cfg.names.join("\n");
 const KS="classcheck:sched2";
 const DEF=[["아침시간","08:30","09:00",0],["1교시","09:00","09:40",1],["쉬는시간","09:40","09:50",0],["2교시","09:50","10:30",1],["쉬는시간","10:30","10:40",0],["3교시","10:40","11:20",1],["쉬는시간","11:20","11:30",0],["4교시","11:30","12:10",1],["쉬는시간","12:10","12:20",0],["5교시","12:20","13:00",1],["점심시간","13:00","13:50",0],["6교시","13:50","14:30",1]];
 let sched=load(KS,null)||{on:true,rows:JSON.parse(JSON.stringify(DEF))}, wake=0, taps=[];
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const parse=t=>[...new Set(t.split(/\r?\n/).map(s=>s.trim()).filter(Boolean))];
+/* 명단 한 줄: "12 홍길동"처럼 번호와 이름. 번호를 빼면 줄 순서가 번호가 돼요. */
+const lineOf=s=>{const m=s.match(/^(\d{1,2})\s*(?:번|\.|\)|:|-)?\s+(.+)$/)||s.match(/^(\d{1,2})(?:번|\.|\)|:|-)\s*(.+)$/);return m?{no:+m[1],n:m[2].trim()}:{no:0,n:s}};
+const rosterRows=t=>{const seen=new Set();return t.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).map(lineOf).filter(x=>x.n&&!seen.has(x.n)&&seen.add(x.n))};
+const parse=t=>rosterRows(t).map(x=>x.n);
+const parseNo=t=>{const r=rosterRows(t),o={};r.forEach((x,i)=>{o[x.n]=x.no||i+1});return o};
+const numOf=n=>{const v=cfg.no&&cfg.no[n];return v?+v:cfg.names.indexOf(n)+1};
+const rosterTxt=()=>cfg.names.map(n=>numOf(n)+" "+n).join("\n");
+draft=rosterTxt();
 
 function render(){mode==="menued"?menuEdit():mode==="setup"?setup():mode==="sched"?schedView():mode==="song"?songView():mode==="game"?gameView():mode==="timer"?timerView():mode==="sugg"?suggView():mode==="upd"?updView():mode==="role"?roleView():mode==="roleedit"?roleEdit():board();kbUI()}
 const AL={late:"지각",abs:"결석",early:"조퇴"};const A=()=>chk.att||(chk.att={});const isA=n=>!!A()[n];
@@ -298,9 +304,9 @@ function allO(k){if(k==="milk"&&milkLocked()){board();return}(k==="milk"?cfg.nam
 function clr(){chk={phone:{},milk:{},lateDone:chk.lateDone};save(KD,chk);board()}
 function setup(){
   const names=parse(draft);
-  $.innerHTML=`<div class="setup"><header><h1>⚙ 명단 설정</h1>${cfg.names.length?`<button onclick="cfg=load(KC,cfg);draft=cfg.names.join('\\n');mode='board';render()">취소</button>`:""}</header>
-  <p class="h">① 학생 이름 (한 줄에 한 명)</p>
-  <textarea id="ta" placeholder="김하늘&#10;이바다&#10;박구름">${esc(draft)}</textarea>
+  $.innerHTML=`<div class="setup"><header><h1>⚙ 명단 설정</h1>${cfg.names.length?`<button onclick="cfg=load(KC,cfg);draft=rosterTxt();mode='board';render()">취소</button>`:""}</header>
+  <p class="h">① 학생 번호와 이름 (한 줄에 한 명) <span style="opacity:.8">— 예: 12 홍길동. 빠진 번호는 건너뛰면 돼요</span></p>
+  <textarea id="ta" placeholder="1 김하늘&#10;2 이바다&#10;3 박구름">${esc(draft)}</textarea>
   <p class="h">② 우유 신청 학생 (${names.length}명 중 <b id="mc">${cfg.milk.filter(n=>names.includes(n)).length}</b>명 선택)</p>
   <div class="chips" id="chips"></div>
   <p class="h">③ 지각 예외 학생 <span style="opacity:.8">— 8시 50분이 지나도 지각으로 표시하지 않아요 (이유는 선생님만 볼 수 있어요)</span></p>
@@ -346,8 +352,10 @@ function drawChips(){
 }
 function finish(){
   const names=parse(draft); if(!names.length){document.getElementById("err").textContent="학생 이름을 입력해 주세요.";return}
+  const no=parseNo(draft),dup=Object.values(no).filter((v,i,a)=>a.indexOf(v)!==i);
+  if(dup.length){document.getElementById("err").textContent=`번호가 겹쳐요: ${[...new Set(dup)].join(", ")}번`;return}
   const ex={};Object.keys(cfg.ex||{}).forEach(n=>{if(names.includes(n))ex[n]=String(cfg.ex[n]||"").trim()});
-  cfg={names,milk:cfg.milk.filter(n=>names.includes(n)),ex}; save(KC,cfg); mode="board"; render(); tick();
+  cfg={names,no,milk:cfg.milk.filter(n=>names.includes(n)),ex}; save(KC,cfg); mode="board"; render(); tick();
 }
 const tm=t=>{const [h,m]=String(t).split(":");return +h*60+ +m};
 function tick(){autoCheck();const ck=document.getElementById("clk");if(ck)ck.textContent=clkTxt();const n=new Date(),m=n.getHours()*60+n.getMinutes();const off=!(mode!=="board"||TM.run||TM.ring)&&sched.on&&sched.rows.some(r=>r[3]&&m>=tm(r[1])&&m<tm(r[2])&&!noCls(r))&&Date.now()>wake;document.getElementById("off").style.display=off?"block":"none";if(!off)hideOm();brkTick()}
@@ -484,7 +492,7 @@ const wkKey=()=>{const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));r
 function quota(){let q=load(KQ,null);if(!q||q.wk!==wkKey())q={wk:wkKey(),song:{},game:{}};return q}
 const qLeft=(k,no)=>QMAX[k]-(quota()[k][no]||0);
 function qAdd(k,no,dv){const q=quota();q[k][no]=Math.max(0,(q[k][no]||0)+dv);save(KQ,q)}
-const noName=v=>{const n=+String(v).trim();return Number.isInteger(n)&&n>=1&&n<=cfg.names.length?cfg.names[n-1]:""};
+const noName=v=>{const n=+String(v).trim();return Number.isInteger(n)&&n>=1?cfg.names.find(x=>numOf(x)===n)||"":""};
 const whoTxt=x=>x.an?"익명":(x.name||x.who||"");
 function whoHTML(p){return `<div class="who"><label for="${p}_no">🙋 내 번호</label><input id="${p}_no" class="nob" inputmode="numeric" maxlength="2" placeholder="번호"><span id="${p}_nm" class="nmv"></span><label class="anon"><input type="checkbox" id="${p}_an"> 🙈 이름 숨기기</label></div>`}
 function whoBind(p,k){
