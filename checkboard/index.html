@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-09-6">
+<meta name="build" content="2026-11-09-7">
 <title>우리 반 체크판</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
@@ -220,7 +220,7 @@ const pad=n=>String(n).padStart(2,"0"); const d=new Date();
 const today=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const KC="classcheck:roster", KD="classcheck:"+today;
 function load(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch(e){return f}}
-function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}if(window.syncOut)syncOut(k)}
 cfg=load(KC,cfg); chk=load(KD,chk);
 if(!cfg.names.length){mode="setup"}
 const KS="classcheck:sched2";
@@ -340,7 +340,8 @@ function bkMake(){
 function bkLoad(){
   const m=document.getElementById("bkmsg");let o;
   try{o=JSON.parse(document.getElementById("bkt").value)}catch(e){m.style.color="var(--no)";m.textContent="백업 글이 올바르지 않아요. 전체를 다시 붙여 넣어 주세요.";return}
-  let n=0;Object.keys(o||{}).forEach(k=>{if(k.startsWith("classcheck:")&&typeof o[k]==="string"){try{localStorage.setItem(k,o[k]);n++}catch(e){}}});
+  let n=0;const st={};Object.keys(o||{}).forEach(k=>{if(k.startsWith("classcheck:")&&k!=="classcheck:synct"&&k!=="classcheck:dev"&&typeof o[k]==="string"){try{localStorage.setItem(k,o[k]);st[k]=Date.now();n++}catch(e){}}});
+  localStorage.setItem("classcheck:synct",JSON.stringify(st)); /* 불러온 기록을 연동된 기기에도 보내요 */
   if(!n){m.style.color="var(--no)";m.textContent="불러올 내용이 없어요.";return}
   m.style.color="var(--ok)";m.textContent=`✅ ${n}개 항목을 불러왔어요. 잠시 후 새로 고침돼요.`;setTimeout(()=>location.reload(),1200);
 }
@@ -364,7 +365,8 @@ function finish(){
   const no=parseNo(draft),dup=Object.values(no).filter((v,i,a)=>a.indexOf(v)!==i);
   if(dup.length){document.getElementById("err").textContent=`번호가 겹쳐요: ${[...new Set(dup)].join(", ")}번`;return}
   const ex={};Object.keys(cfg.ex||{}).forEach(n=>{if(names.includes(n))ex[n]=String(cfg.ex[n]||"").trim()});
-  cfg={names,no,milk:cfg.milk.filter(n=>names.includes(n)),ex}; save(KC,cfg); mode="board"; render(); tick();
+  cfg={names,no,milk:cfg.milk.filter(n=>names.includes(n)),ex}; save(KC,cfg);
+  if(SYNC_URL){localStorage.removeItem("classcheck:synct");location.reload();return} /* 명단이 바뀌면 연동 기록을 새 명단으로 다시 받아요 */ mode="board"; render(); tick();
 }
 const tm=t=>{const [h,m]=String(t).split(":");return +h*60+ +m};
 function tick(){autoCheck();const ck=document.getElementById("clk");if(ck)ck.textContent=clkTxt();const n=new Date(),m=n.getHours()*60+n.getMinutes();const can=!(mode!=="board"||TM.run||TM.ring)&&sched.on&&sched.rows.some(r=>r[3]&&m>=tm(r[1])&&m<tm(r[2])&&!noCls(r)),off=can&&Date.now()>wake;document.getElementById("off").style.display=off?"block":"none";document.getElementById("slp").style.display=can&&!off?"block":"none";if(!off)hideOm();brkTick()}
@@ -1098,6 +1100,66 @@ document.addEventListener("focusin",e=>{
 });
 window.addEventListener("resize",kbFit);
 
+
+/* ===== 기기 연동 (Firebase Realtime Database) =====
+   데스크탑과 전자칠판의 기록을 실시간으로 맞춰요. 명단·비밀번호는 기기마다 따로예요.
+   학생 이름은 보내지 않아요: 보낼 때 "§번호§"로 바꾸고, 받을 때 이 기기 명단의 이름으로 되돌려요.
+   키마다 가장 나중에 바꾼 기록이 이겨요. */
+const SYNC_URL="";
+const SYNC_ROOM="a75c1574482b6842";
+(function(){
+  if(!SYNC_URL)return;
+  const SKIP=new Set([KC,KPW,KUPS,"classcheck:synct","classcheck:dev"]);
+  const ok=k=>k&&k.startsWith("classcheck:")&&!SKIP.has(k);
+  const KT="classcheck:synct",lt=load(KT,{});
+  let dev=localStorage.getItem("classcheck:dev");if(!dev){dev=Math.random().toString(36).slice(2,10);localStorage.setItem("classcheck:dev",dev)}
+  const base=SYNC_URL.replace(/\/$/,"")+"/c/"+SYNC_ROOM;
+  const byLen=()=>[...cfg.names].sort((a,b)=>b.length-a.length);
+  const enc=t=>{byLen().forEach(n=>{t=t.split(n).join("§"+numOf(n)+"§")});return t};
+  const dec=t=>t.replace(/§(\d+)§/g,(m,no)=>cfg.names.find(x=>numOf(x)===+no)||m);
+  const tm={};
+  function push(k,t){
+    const raw=localStorage.getItem(k);if(raw==null)return;
+    fetch(base+"/"+encodeURIComponent(k)+".json",{method:"PUT",body:JSON.stringify({v:enc(raw),t,by:dev})}).catch(()=>{});
+  }
+  window.syncOut=k=>{if(!ok(k))return;lt[k]=Date.now();localStorage.setItem(KT,JSON.stringify(lt));clearTimeout(tm[k]);tm[k]=setTimeout(()=>push(k,lt[k]),250)};
+  let dirty=false;
+  function take(k,r){
+    if(!ok(k)||!r||typeof r.v!=="string"||!(r.t>(lt[k]||0)))return;
+    try{localStorage.setItem(k,dec(r.v))}catch(e){return}
+    lt[k]=r.t;dirty=true;
+  }
+  function refresh(){
+    if(!dirty)return;localStorage.setItem(KT,JSON.stringify(lt));
+    const a=document.activeElement,typing=a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);
+    const modal=["am","sp"].some(i=>{const e=document.getElementById(i);return e&&getComputedStyle(e).display!=="none"});
+    if(typing||modal)return; /* 입력 중이면 끝난 뒤에 화면을 다시 그려요 */
+    dirty=false;
+    chk=load(KD,chk);sched=load(KS,sched);songs=load(KSG,songs);sbox=load(KBOX,sbox);
+    gbox=load(KGB,gbox);gpick=load(KGP,gpick);tt=load(KTT,tt);sugg=load(KSUG,sugg);
+    if(["board","song","game","sugg","role"].includes(mode))render();
+    tick();
+  }
+  setInterval(refresh,1000);
+  let first=true;
+  const es=new EventSource(base+".json");
+  const onEv=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}if(!m)return;
+    const path=m.path||"/",data=m.data;
+    if(path==="/"&&e.type==="put"){
+      const all=data||{};
+      Object.keys(all).forEach(k=>take(decodeURIComponent(k),all[k]));
+      if(first){first=false; /* 처음 연결: 이 기기에만 있거나 더 새로운 기록을 올려요 */
+        for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(!ok(k))continue;
+          const r=all[k]||all[encodeURIComponent(k)];
+          if(!r){if(!lt[k])lt[k]=Date.now();push(k,lt[k])}else if((lt[k]||0)>r.t)push(k,lt[k])}
+        localStorage.setItem(KT,JSON.stringify(lt))}
+    }else if(path==="/")Object.keys(data||{}).forEach(x=>take(decodeURIComponent(x),data[x]));
+    else{const parts=path.slice(1).split("/"),k=decodeURIComponent(parts[0]);
+      if(parts.length===1&&e.type==="put")take(k,data);
+      else fetch(base+"/"+parts[0]+".json").then(r=>r.json()).then(r=>{take(k,r);refresh()}).catch(()=>{})}
+    refresh()};
+  es.addEventListener("put",onEv);es.addEventListener("patch",onEv);
+})();
 
 /* ===== 자동 업데이트 =====
    웹 주소로 열었을 때 30초마다 새 버전이 있는지 확인하고, 있으면 알림 없이 바로 새로고침해요.
