@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-09-9">
+<meta name="build" content="2026-11-09-10">
 <title>우리 반 체크판</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
@@ -190,7 +190,10 @@ body.kbon #app{padding-bottom:calc(6px + var(--kbh,0px))}
 .rc small{color:var(--sub);font-weight:700;font-size:clamp(10px,1.35vw,17px);line-height:1.15}
 .rc b{font-size:clamp(14px,2.3vw,30px);line-height:1.1}
 .rc.me{border-color:var(--pri);background:var(--chip);box-shadow:0 0 0 4px color-mix(in srgb,var(--pri) 35%,transparent)}
-.rc.me b{color:var(--pri)}.rc.dim{opacity:.45}.rc.nil{border:none;background:none;cursor:default}
+.rc.me b{color:var(--pri)}.rc.dim{opacity:.45}.rc.same{border-color:var(--pri)}.rc{cursor:pointer}
+.rg .rc b{font-size:clamp(12px,1.55vw,26px);word-break:keep-all;text-align:center;line-height:1.2}
+.rg .rc small{word-break:keep-all;text-align:center}
+@media (max-width:760px){.rl{flex-direction:column;height:auto;min-height:0}.rp{order:-1;flex:none}.rg{flex:none;height:72vh}.rg .rc b{font-size:clamp(11px,3.3vw,16px)}.rg .rc small{font-size:10px}.rres .b{font-size:26px}}.rc.nil{border:none;background:none;cursor:default}
 .rp{flex:1 1 34%;min-width:0;display:flex;flex-direction:column;gap:8px;overflow:auto}
 .rns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .rns button{padding:8px 4px;font-size:clamp(13px,1.7vw,21px);border:2px solid var(--line);background:var(--card)}
@@ -866,26 +869,24 @@ let roleSel="",rDraft=null,rCell=null;
 const seats=()=>{const s=load(KSEAT,null);return s&&s.g&&s.g.length===5?s:SEAT_DEF};
 const rTitle=r=>r.split("|")[0];
 const rMiss=g=>cfg.names.filter(n=>!g.some((row,r)=>row.some((x,c)=>x===n&&ROLES[r][c])));
+/* 1인1역: 역할은 자리에 고정이에요. 자리를 누르면 그 자리의 1인1역이 나와요 (학생 이름·번호는 보여주지 않아요) */
 function roleView(){
-  const S=seats(),old=S.ym!==today.slice(0,7);let me=null;
-  if(roleSel)S.g.forEach((row,r)=>row.forEach((n,c)=>{if(n===roleSel&&ROLES[r][c])me=[r,c]}));
-  const role=me?ROLES[me[0]][me[1]]:"";
-  const mates=me?S.g.flatMap((row,r)=>row.map((n,c)=>ROLES[r][c]===role&&n&&n!==roleSel?n:"")).filter(Boolean):[];
+  const sel=roleSel?roleSel.split(",").map(Number):null,role=sel?ROLES[sel[0]][sel[1]]:"";
   const cell=(r,c)=>{
-    const ro=ROLES[r][c],n=S.g[r][c]||"";if(!ro)return `<div class="rc nil"></div>`;
-    const cls=me?(me[0]===r&&me[1]===c?" me":" dim"):"",[t,dt]=ro.split("|");
-    return `<div class="rc${cls}" data-n="${esc(n)}"><small>${esc(t)}${dt?"<br>"+esc(dt).replace(/ -/g,"<br>-"):""}</small><b>${n?esc(n):"—"}</b></div>`;
+    const ro=ROLES[r][c];if(!ro)return `<div class="rc nil"></div>`;
+    const [t,dt]=ro.split("|"),me=sel&&sel[0]===r&&sel[1]===c,same=sel&&!me&&ro===role;
+    const cls=sel?(me?" me":same?" same":" dim"):"";
+    return `<div class="rc${cls}" data-p="${r},${c}"><b>${esc(t)}</b>${dt?`<small>${esc(dt).replace(/ -/g,"<br>-")}</small>`:""}</div>`;
   };
-  const res=me?`<div class="a">${esc(roleSel)}의 1인1역</div><div class="b">${esc(rTitle(role))}</div>${role.includes("|")?`<div class="c">${esc(role.split("|")[1])}</div>`:""}${mates.length?`<div class="c">함께 하는 친구: ${esc(mates.join(", "))}</div>`:""}`
-    :roleSel?`<div class="a">${esc(roleSel)}</div><div class="c">자리표에 이름이 없어요. 선생님께 알려 주세요.</div>`
-    :`<div class="a">내 이름을 눌러 보세요 👇</div>`;
-  $.innerHTML=`<div class="setup" style="max-width:1500px"><header><h1>🧹 우리 반 1인1역</h1><button onclick="go('roleedit')">✏ 자리표 입력 🔒</button><button class="pri" onclick="go('board')">닫기</button></header>
-  <p class="h" style="${old?"color:var(--no);font-weight:800":""}">${old?"⚠ 이번 달 자리표가 아니에요. 선생님이 ‘✏ 자리표 입력’에서 새로 넣어 주세요. ":""}📅 ${+S.ym.slice(5)}월 자리표 (${esc(S.on)} 입력)</p>
+  const cnt=sel?ROLES.flat().filter(x=>x===role).length:0;
+  const res=sel?`<div class="a">이 자리의 1인1역</div><div class="b">${esc(rTitle(role))}</div>${role.includes("|")?`<div class="c">${esc(role.split("|")[1]).replace(/ -/g,"<br>-")}</div>`:""}${cnt>1?`<div class="c">같은 역할 자리: ${cnt}곳 (파란 테두리)</div>`:""}`
+    :`<div class="a">내 자리를 눌러 보세요 👈</div>`;
+  $.innerHTML=`<div class="setup" style="max-width:1500px"><header><h1>🧹 우리 반 1인1역</h1><button class="pri" onclick="go('board')">닫기</button></header>
   <div class="rl"><div class="rg"><div class="rb tc">선생님<br>자리</div><div class="rb bd" style="grid-column:2/7">칠판</div><div class="rb dr">앞문</div>
   ${ROLES.map((row,r)=>row.map((_,c)=>cell(r,c)).join("")).join("")}
   <div class="rb hl" style="grid-column:7;grid-row:2/6">복도</div><div class="rb dr" style="grid-column:7;grid-row:6">뒷문</div></div>
-  <div class="rp"><div class="rres">${res}</div><div class="rns">${cfg.names.map(n=>`<button class="${n===roleSel?"on":""}" data-n="${esc(n)}">${esc(n)}</button>`).join("")}</div></div></div></div>`;
-  $.querySelector(".rl").onclick=e=>{const b=e.target.closest("[data-n]");if(!b||!b.dataset.n)return;roleSel=roleSel===b.dataset.n?"":b.dataset.n;roleView()};
+  <div class="rp"><div class="rres">${res}</div></div></div></div>`;
+  $.querySelector(".rg").onclick=e=>{const b=e.target.closest("[data-p]");if(!b)return;roleSel=roleSel===b.dataset.p?"":b.dataset.p;roleView()};
 }
 function roleEdit(){
   if(!rDraft)rDraft=seats().g.map(r=>[...r]);
