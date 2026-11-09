@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-09-5">
+<meta name="build" content="2026-11-09-6">
 <title>우리 반 체크판</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
@@ -273,7 +273,8 @@ function milkNote(lk,ord){
     const pr=[];for(let i=0;i<ord.length;i+=2)pr.push(`<span class="dp"><b>${i/2+1}.</b> 등교 <em>${esc(ord[i])}</em> · 하교 <em>${ord[i+1]?esc(ord[i+1]):"—"}</em></span>`);
     return `<div class="mnote lk"><div class="dh">🥛 우유당번 <button class="dr" onclick="askPin(dutyRedo)">🔀 다시 뽑기 🔒</button></div><div class="dps">${pr.join("")}</div></div>`;
   }
-  return `<div class="mnote">잠기는 시간<br><b class="${a?"td":""}">오후 1시 50분</b><br><b class="${w?"td":""}">수요일은 낮 12시 10분</b></div>`;
+  if(!school())return ""; /* 오늘 요일의 잠기는 시간만 보여줘요 */
+  return `<div class="mnote">잠기는 시간<br><b class="td">${w?"낮 12시 10분":"오후 1시 50분"}</b></div>`;
 }
 const clkTxt=()=>{const n=new Date();return `${pad(n.getHours())}시 ${pad(n.getMinutes())}분`};
 function milkToggle(){chk.milkOpen=chk.milkOpen?0:1;save(KD,chk);mlk=null;autoCheck()}
