@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="build" content="2026-11-09-1">
+<title>우리 반 체크판</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171a26;--card:#232839;--ink:#f1f3fb;--sub:#a3a8c0;--line:#363c56;--okbg:#17402b;--nobg:#4a2024;--chip:#2e3556;--ok:#4cd68a;--no:#ff7076;--pri:#7c93ff}}
+:root[data-theme="dark"]{--bg:#171a26;--card:#232839;--ink:#f1f3fb;--sub:#a3a8c0;--line:#363c56;--okbg:#17402b;--nobg:#4a2024;--chip:#2e3556;--ok:#4cd68a;--no:#ff7076;--pri:#7c93ff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;-webkit-user-select:none;user-select:none}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;padding:6px 8px;gap:6px;overflow:hidden}
+header{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+header h1{margin:0;font-size:clamp(14px,2.6vw,30px);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button{font-family:inherit;cursor:pointer;border:none;color:var(--ink);background:var(--chip);font-weight:700;border-radius:12px;padding:6px 10px;font-size:clamp(11px,1.6vw,18px);white-space:nowrap;touch-action:manipulation}
+button.pri{background:var(--pri);color:#fff}
+main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:8px}
+.panel{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px;display:flex;flex-direction:column;min-height:0}
+.ph{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;margin-bottom:6px}
+.ph h2{margin:0;font-size:clamp(13px,2.2vw,26px);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cnt{font-weight:800;font-size:clamp(11px,1.7vw,20px);white-space:nowrap}
+.cnt b{padding:1px 6px;border-radius:99px;margin:0 3px 0 2px}
+.c-o{background:var(--okbg);color:var(--ok)}.c-x{background:var(--nobg);color:var(--no)}.c-n{background:var(--chip);color:var(--sub)}
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.s{container-type:inline-size;border:2px solid var(--line);background:var(--card);border-radius:10px;padding:2px;min-height:0;min-width:0;overflow:hidden;font-weight:800;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;touch-action:manipulation}
+.s span{white-space:nowrap;line-height:1.15}
+.s i{font-style:normal;font-size:min(40cqw,5vh);line-height:1;min-height:1em}
+.s.o{border-color:var(--ok);background:var(--okbg)}.s.o i{color:var(--ok)}
+.s.x{border-color:var(--no);background:var(--nobg)}.s.x i{color:var(--no)}
+.empty{grid-column:1/-1;grid-row:1/-1;color:var(--sub);padding:12px;text-align:center;line-height:1.6;font-size:clamp(12px,1.6vw,18px)}
+.setup{max-width:900px;margin:0 auto;width:100%;height:100%;overflow:auto}
+textarea{width:100%;height:200px;font:inherit;font-size:18px;padding:12px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink);user-select:text;-webkit-user-select:text}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{border:3px solid var(--line);background:var(--card);border-radius:99px;padding:8px 16px;font-size:18px}
+.chip.on{border-color:var(--pri);background:var(--chip);color:var(--pri)}
+p.h{color:var(--sub);margin:6px 0}
+.tr{display:flex;gap:6px;align-items:center;margin:6px 0;flex-wrap:wrap}
+.tr input{font:inherit;font-size:18px;padding:6px 8px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);-webkit-user-select:text;user-select:text}
+.tr .nm{width:120px}
+.tg.offb{background:#111;color:#fff}
+.mn{position:relative}
+.dd{display:none;flex-direction:column;gap:6px;position:absolute;right:0;top:calc(100% + 6px);background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px;z-index:50;min-width:150px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.dd button{text-align:left;white-space:nowrap;padding:10px 14px}
+.tr .sgi{flex:1;min-width:180px}
+.tr .num{font-size:22px;width:28px;text-align:center}
+.dn{background:var(--okbg);color:var(--ok)}
+#offm{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(92vw,520px);max-height:92vh;overflow:auto;background:#1b1b22;color:#fff;border:2px solid #4a4d63;border-radius:16px;padding:12px;cursor:default}
+#offm button{background:#3a3e5c;color:#fff;padding:8px 12px;font-size:clamp(13px,1.8vw,17px)}
+#offm .omw{width:100%;background:#3b5bdb;margin-bottom:6px;padding:12px;font-size:clamp(15px,2.2vw,20px)}
+.omr{display:flex;align-items:center;gap:8px;padding:5px 6px;border-bottom:1px solid #33364a;font-size:clamp(13px,1.9vw,18px);border-radius:8px}
+.omr.cur{background:#2a3350;font-weight:800}
+.armed{background:var(--no)!important;color:#fff!important}
+.panel.done{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 10%,var(--card))}
+.allo{position:fixed;left:0;right:0;top:0;bottom:0;pointer-events:none;z-index:40;display:flex;align-items:center;justify-content:center}
+.allo .ring{width:min(86vw,86vh);aspect-ratio:1;border-radius:50%;border:clamp(16px,3.2vw,44px) solid var(--ok);opacity:.55;animation:pop .6s ease-out}
+.allo .bw{position:absolute;left:0;right:0;bottom:5%;display:flex;justify-content:center}
+.allo .ban{background:var(--ok);color:#fff;font-weight:800;font-size:clamp(18px,3.4vw,40px);padding:10px 28px;border-radius:999px;white-space:nowrap;animation:pop .6s ease-out}
+@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.06)}100%{transform:scale(1)}}
+
+.tabs{display:flex;gap:8px;margin:8px 0}
+.tabs button{flex:1;padding:12px;font-size:clamp(14px,2vw,20px);border:2px solid var(--line)}
+.tabs button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.fm label{display:block;font-weight:800;margin:12px 0 4px;font-size:clamp(14px,1.9vw,19px)}
+.fm input,.fm textarea{width:100%;font:inherit;font-size:18px;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);-webkit-user-select:text;user-select:text}
+.fm textarea{height:84px;resize:vertical}
+.fm .tr input{width:auto}
+.li{display:flex;align-items:center;gap:8px;padding:8px 10px;border:2px solid var(--line);border-radius:12px;margin:6px 0;background:var(--card);font-size:clamp(14px,1.9vw,19px)}
+.li .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gres{border:3px solid var(--pri);border-radius:16px;padding:14px 16px;background:var(--card);margin-top:8px}
+.gres h3{margin:0 0 8px;font-size:clamp(22px,4vw,40px);color:var(--pri)}
+.gres .q{font-weight:800;margin:12px 0 2px;color:var(--sub);font-size:clamp(13px,1.8vw,18px)}
+.gres .a{white-space:pre-wrap;font-size:clamp(17px,2.6vw,28px);line-height:1.5}
+#am{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:60;align-items:center;justify-content:center}
+.amc{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:min(80vw,280px)}
+.amc .amt{font-weight:800;font-size:clamp(18px,3vw,28px);text-align:center;margin-bottom:2px}
+.amc button{padding:14px;font-size:clamp(16px,2.4vw,24px)}
+.s{-webkit-touch-callout:none}
+.s.a{border-color:var(--atc);background:color-mix(in srgb,var(--atc) 16%,var(--card))}
+.s.a i{font-size:min(24cqw,4vh);color:var(--atc)}
+.panel{position:relative}
+.lockov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2;color:var(--ink)}
+.lockov svg{width:min(55%,48vh);height:auto;opacity:.2}
+.bdg{display:inline-block;background:var(--no);color:#fff;border-radius:99px;padding:0 7px;font-size:.8em;line-height:1.5;margin-left:4px;font-weight:800}
+.sgc{border:2px solid var(--line);border-radius:14px;padding:12px 14px;margin:8px 0;background:var(--card)}
+.sgc.new{border-color:var(--pri)}
+.sgc .t{font-size:clamp(17px,2.6vw,26px);font-weight:800;white-space:pre-wrap;word-break:keep-all;line-height:1.4;-webkit-user-select:text;user-select:text}
+.sgc .m{color:var(--sub);font-size:clamp(12px,1.6vw,16px);margin-top:6px}
+.sgc .ui{font-size:clamp(15px,2.1vw,21px);line-height:1.5;padding:4px 0;word-break:keep-all}
+.sgr{display:flex;gap:10px;align-items:center}
+.ckb{flex:none;width:clamp(48px,7vw,64px);height:clamp(48px,7vw,64px);border-radius:50%;font-size:clamp(22px,3.4vw,32px);padding:0;background:var(--okbg);color:var(--ok);border:2px solid var(--ok)}
+.li .m2{color:var(--sub);font-size:.85em;white-space:nowrap}
+.uh{font-size:clamp(16px,2.2vw,22px);font-weight:800;color:var(--pri);margin-bottom:4px}
+.ul{margin:0;padding-left:2em}
+.ul li{font-size:clamp(15px,2.1vw,21px);line-height:1.5;padding:3px 0;word-break:keep-all}
+.ul li::marker{font-weight:800;color:var(--pri)}
+.sgb{display:flex;gap:6px;margin-top:10px}
+.sgb button{flex:1;padding:12px 6px;font-size:clamp(14px,2.1vw,21px)}
+.stb{display:inline-block;white-space:nowrap;font-weight:800;padding:1px 10px;border-radius:99px;margin-left:4px}
+.st-good{background:var(--okbg);color:var(--ok)}.st-hard{background:var(--nobg);color:var(--no)}
+.st-think{background:color-mix(in srgb,#d98200 18%,var(--card));color:#d98200}
+.st-seen,.st-wait{background:var(--chip);color:var(--sub)}
+.clk{font-weight:800;font-size:clamp(15px,2.8vw,32px);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--pri);padding:0 4px}
+.dh{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px}
+.dh .dr{font-size:clamp(11px,1.4vw,15px);padding:4px 10px;pointer-events:auto}
+.dps{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 8px}
+.dp{background:var(--nobg);color:var(--ink);border-radius:99px;padding:2px 10px;font-size:clamp(12px,1.7vw,19px);white-space:nowrap}
+.dp b{color:var(--no)}.dp em{font-style:normal;font-weight:800}
+.rule{background:var(--chip);border-radius:12px;padding:10px 14px;margin:6px 0 4px;line-height:1.6;font-size:clamp(14px,1.9vw,19px)}
+.who{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0 4px}
+.who>label{font-weight:800;margin:0!important;display:inline!important}
+.fm .who .nob{width:90px;text-align:center;font-weight:800}
+.nmv{font-weight:800;min-width:0}
+.fm .who .anon{display:inline-flex!important;align-items:center;gap:4px;font-weight:700;margin-left:auto!important;cursor:pointer}
+.fm .who .anon input{width:22px;height:22px}
+a.abtn{display:inline-flex;align-items:center;text-decoration:none;font-weight:700;border-radius:12px;padding:6px 10px;font-size:clamp(11px,1.6vw,18px);white-space:nowrap;background:var(--pri);color:#fff}
+.mnote{margin-top:6px;text-align:center;font-weight:800;color:var(--ink);font-size:clamp(14px,2.2vw,30px);line-height:1.3}
+.mnote b{white-space:nowrap}
+.mnote b{font-weight:700;padding:1px 6px;border-radius:99px}
+.mnote b.td{background:var(--chip);color:var(--pri);font-weight:800}
+.mnote.lk{color:var(--no)}
+.s.duty{border-color:var(--no);background:var(--nobg)}.s.duty i{color:var(--no);font-size:min(24cqw,4vh)}
+.s.a-late{--atc:#d98200}.s.a-abs{--atc:#8e44ad}.s.a-early{--atc:#0b7fab}
+#sp{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:61;align-items:center;justify-content:center}
+.spc{min-width:min(88vw,560px)!important}
+.spr{display:flex;gap:12px;align-items:center;font-size:clamp(20px,3.6vw,36px);padding:10px 12px;border:2px solid var(--line);border-radius:12px}
+.spr b{min-width:1.4em;text-align:center}
+.spr span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.75}
+.spr span.lock{color:var(--pri);font-weight:800;opacity:1;animation:pop .4s ease-out}
+#tmo{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(214,51,58,.94);align-items:center;justify-content:center;animation:fl 1s infinite}
+@keyframes fl{50%{background:rgba(180,30,40,.94)}}
+.tmb{display:flex;flex-direction:column;gap:24px;align-items:center;color:#fff;text-align:center}
+.tmb button{font-size:clamp(20px,3.4vw,36px);padding:14px 40px}
+.tmd{text-align:center;font-weight:800;font-size:clamp(56px,12vw,150px);line-height:1.1;font-variant-numeric:tabular-nums;margin:6px 0}
+.tmw{display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap}
+.tmdial svg{width:min(56vh,90vw);height:auto;display:block}
+.tmr{display:flex;flex-direction:column;align-items:center;gap:8px}
+.tmb2{padding:14px 26px;font-size:clamp(18px,3vw,32px)}
+#pin{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10002;align-items:center;justify-content:center}
+.pinc{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;width:min(88vw,340px);display:flex;flex-direction:column;align-items:center;gap:10px}
+.pinc.bad{animation:shk .35s}
+@keyframes shk{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pint{font-weight:800;word-break:keep-all;font-size:clamp(16px,2.4vw,21px);text-align:center}
+.pind{display:flex;gap:14px}.pind i{width:18px;height:18px;border-radius:50%;border:2px solid var(--sub)}.pind i.on{background:var(--pri);border-color:var(--pri)}
+.pinm{color:var(--no);font-weight:800;min-height:1.3em;font-size:15px}
+.pink{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
+.pink button{padding:14px 0;font-size:24px;border-radius:14px}.pink .pinx{font-size:17px}
+#brk{display:none;position:fixed;inset:0;z-index:45;pointer-events:none;align-items:center;justify-content:center}
+.brkc{display:flex;flex-direction:column;align-items:center;background:color-mix(in srgb,var(--card) 45%,transparent);border:4px solid color-mix(in srgb,var(--pri) 55%,transparent);border-radius:28px;padding:clamp(10px,2vw,24px) clamp(18px,3vw,44px)}
+.brkt{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.brkl{font-weight:800;font-size:clamp(22px,3.6vw,46px);color:var(--ink);opacity:.8}
+.brkd{font-weight:800;font-size:clamp(64px,14vw,190px);line-height:1;font-variant-numeric:tabular-nums;color:var(--pri);opacity:.75}
+.brkn{display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:3px dashed var(--line);padding-left:clamp(10px,2vw,28px);min-width:clamp(120px,20vw,280px)}
+.brkn .a{font-weight:800;font-size:clamp(15px,2.4vw,30px);color:var(--sub)}
+.brkn .b{font-weight:800;font-size:clamp(36px,7vw,96px);line-height:1.1;color:var(--ink);word-break:keep-all;text-align:center}
+.brkc.end{border-color:var(--no);animation:fl2 1s infinite}.brkc.end .brkd{color:var(--no)}
+@keyframes fl2{50%{background:color-mix(in srgb,var(--no) 18%,transparent)}}
+.ttg{display:grid;grid-template-columns:auto repeat(5,minmax(0,1fr));gap:5px;margin-top:6px}
+.ttg b{display:flex;align-items:center;justify-content:center;font-size:clamp(14px,1.9vw,19px);background:var(--chip);border-radius:8px;padding:6px 4px}
+.ttg input{width:100%;min-width:0;font:inherit;font-size:clamp(14px,1.9vw,19px);padding:8px 4px;text-align:center;border-radius:8px;border:2px solid var(--line);background:var(--card);color:var(--ink);-webkit-user-select:text;user-select:text}
+.ttg b.td{background:var(--pri);color:#fff}
+#off{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:9999;cursor:none}
+/* ===== 화면 키보드 ===== */
+#kb{display:none;position:fixed;left:0;right:0;bottom:0;z-index:55;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:2px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.22);-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.kbw{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:5px}
+#kbhint{display:none;text-align:center;color:var(--sub);font-weight:700;font-size:clamp(12px,1.6vw,18px)}
+#kbr{display:flex;flex-direction:column;gap:5px}
+.kr{display:flex;gap:5px}
+.kk{flex:1;min-width:0;height:clamp(40px,6.4vh,76px);padding:0;border-radius:10px;background:var(--card);border:2px solid var(--line);font-size:clamp(16px,2.8vh,32px);box-shadow:0 2px 0 var(--line)}
+.kk.fn{background:var(--chip)}
+.kk.on,.kk:active{background:var(--pri);color:#fff;border-color:var(--pri)}
+body.kbon #app{padding-bottom:calc(6px + var(--kbh,0px))}
+.setup{padding-bottom:84px}
+#kbfab{display:none;position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:54;padding:12px 20px;font-size:clamp(16px,2.4vw,24px);border-radius:999px;background:var(--pri);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+/* ===== 1인1역 ===== */
+.rl{display:flex;gap:10px;height:calc(100% - 96px);min-height:420px}
+.rg{flex:1 1 66%;min-width:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr)) minmax(0,.62fr);grid-template-rows:.7fr repeat(5,1fr);gap:5px}
+.rb{display:flex;align-items:center;justify-content:center;text-align:center;border-radius:10px;font-weight:800;font-size:clamp(12px,1.8vw,22px);padding:2px;color:#fff}
+.rb.tc{background:#e0b341;color:#3b2e00}.rb.bd{background:#2e7d32}.rb.dr{background:#a87d00}.rb.hl{background:#8d8d8d}
+.rc{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:2px solid var(--line);background:var(--card);border-radius:10px;padding:3px;min-width:0;min-height:0;overflow:hidden;text-align:center;cursor:pointer;touch-action:manipulation;color:var(--ink)}
+.rc small{color:var(--sub);font-weight:700;font-size:clamp(10px,1.35vw,17px);line-height:1.15}
+.rc b{font-size:clamp(14px,2.3vw,30px);line-height:1.1}
+.rc.me{border-color:var(--pri);background:var(--chip);box-shadow:0 0 0 4px color-mix(in srgb,var(--pri) 35%,transparent)}
+.rc.me b{color:var(--pri)}.rc.dim{opacity:.45}.rc.nil{border:none;background:none;cursor:default}
+.rp{flex:1 1 34%;min-width:0;display:flex;flex-direction:column;gap:8px;overflow:auto}
+.rns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.rns button{padding:8px 4px;font-size:clamp(13px,1.7vw,21px);border:2px solid var(--line);background:var(--card)}
+.rns button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.rres{border:3px solid var(--pri);border-radius:14px;padding:10px 12px;background:var(--card);text-align:center}
+.rres .a{font-size:clamp(15px,2vw,24px);color:var(--sub);font-weight:800}
+.rres .b{font-size:clamp(22px,3.6vw,46px);font-weight:800;color:var(--pri);line-height:1.2}
+.rres .c{font-size:clamp(13px,1.7vw,20px);color:var(--sub);margin-top:4px;font-weight:700}
+.reg{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.reg .rc{min-height:clamp(54px,9vh,90px)}
+</style>
+</head>
+<body>
+<div id="off"><div id="offm"></div></div>
+<div id="app"></div>
+<div id="am"></div>
+<div id="sp"></div>
+<div id="tmo"></div>
+<div id="pin"></div>
+<div id="brk"></div>
+<div id="kb"><div class="kbw"><div id="kbr"></div></div></div>
+<button id="kbfab" type="button" onmousedown="event.preventDefault()" onclick="kbShow()">⌨ 키보드</button>
+<script>
+const $=document.getElementById("app");
+let cfg={"names":["1번","2번","3번","4번","5번","6번","7번","8번","9번","10번","11번","12번","13번","14번","15번","16번","17번","18번","19번","20번","21번","22번","23번","24번","25번"],"milk":["1번","2번","4번","5번","6번","7번","8번","10번","12번","13번","14번","15번","16번","19번","20번","21번","22번","25번"]}, chk={phone:{},milk:{}}, mode="board", draft="";
+const pad=n=>String(n).padStart(2,"0"); const d=new Date();
+const today=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const KC="classcheck:roster", KD="classcheck:"+today;
+function load(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch(e){return f}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+cfg=load(KC,cfg); chk=load(KD,chk);
+if(!cfg.names.length){mode="setup"}
+draft=cfg.names.join("\n");
+const KS="classcheck:sched2";
+const DEF=[["아침시간","08:30","09:00",0],["1교시","09:00","09:40",1],["쉬는시간","09:40","09:50",0],["2교시","09:50","10:30",1],["쉬는시간","10:30","10:40",0],["3교시","10:40","11:20",1],["쉬는시간","11:20","11:30",0],["4교시","11:30","12:10",1],["쉬는시간","12:10","12:20",0],["5교시","12:20","13:00",1],["점심시간","13:00","13:50",0],["6교시","13:50","14:30",1]];
+let sched=load(KS,null)||{on:true,rows:JSON.parse(JSON.stringify(DEF))}, wake=0, taps=[];
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const parse=t=>[...new Set(t.split(/\r?\n/).map(s=>s.trim()).filter(Boolean))];
+
+function render(){mode==="menued"?menuEdit():mode==="setup"?setup():mode==="sched"?schedView():mode==="song"?songView():mode==="game"?gameView():mode==="timer"?timerView():mode==="sugg"?suggView():mode==="upd"?updView():mode==="role"?roleView():mode==="roleedit"?roleEdit():board();kbUI()}
+const AL={late:"지각",abs:"결석",early:"조퇴"};const A=()=>chk.att||(chk.att={});const isA=n=>!!A()[n];
+/* 우유판에서는 결석·조퇴만 면제 (지각생도 우유는 마셔야 해요) */
+const atOf=(k,n)=>{const a=A()[n];return k==="phone"?a:(a==="abs"||a==="early"?a:"")};
+const full=(k,l)=>l.length>0&&l.every(n=>chk[k][n]==="o"||!!atOf(k,n));
+/* ===== 자동 지각 / 우유판 잠금 ===== */
+const LATE_AT=8*60+50; /* 오전 8:50 */
+const nowM=()=>{const n=new Date();return n.getHours()*60+n.getMinutes()};
+const school=()=>d.getDay()>=1&&d.getDay()<=5;
+const milkLockAt=()=>d.getDay()===3?12*60+10:13*60+50; /* 수 12:10, 월화목금 13:50 */
+const milkPast=()=>school()&&nowM()>=milkLockAt();
+const milkLocked=()=>milkPast()&&!chk.milkOpen;
+function autoLate(){
+  if(!school()||chk.lateDone||nowM()<LATE_AT)return false;
+  cfg.names.forEach(n=>{if(chk.phone[n]!=="o"&&!A()[n]&&!isEx(n))A()[n]="late"});
+  chk.lateDone=1;save(KD,chk);return true;
+}
+/* 지각 예외 학생 (⚙ 명단에서 설정) */
+const isEx=n=>!!cfg.ex&&Object.prototype.hasOwnProperty.call(cfg.ex,n);
+const LOCK_SVG=`<svg viewBox="0 0 100 120" aria-hidden="true"><path d="M28 54V36a22 22 0 0 1 44 0v18" fill="none" stroke="currentColor" stroke-width="11" stroke-linecap="round"/><rect x="12" y="50" width="76" height="62" rx="12" fill="currentColor"/><circle cx="50" cy="76" r="8" fill="var(--card)"/><rect x="46" y="78" width="8" height="18" rx="3" fill="var(--card)"/></svg>`;
+let mlk=null;
+function autoCheck(){const a=autoLate(),l=milkLocked();if(a||l!==mlk){mlk=l;if(mode==="board")board()}}
+/* 우유당번: 잠긴 뒤 못 마신 학생을 랜덤으로 섞어 1. 등교/하교, 2. 등교/하교 … 순서로 정해요 (그날 한 번 정하면 유지) */
+function dutyOrder(list){
+  const key=[...list].sort().join("|");
+  if(!chk.duty||chk.duty.key!==key){const a=[...list];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}chk.duty={key,order:a};save(KD,chk)}
+  return chk.duty.order;
+}
+const dutyLbl=i=>`${i%2?"하교":"등교"} ${Math.floor(i/2)+1}`;
+function dutyRedo(){chk.duty=null;save(KD,chk);board()}
+function milkNote(lk,ord){
+  const w=d.getDay()===3,a=!w&&school();
+  if(lk){
+    if(!ord.length)return `<div class="mnote lk">🔒 잠겼어요! 모두 우유를 마셨어요 👏</div>`;
+    const pr=[];for(let i=0;i<ord.length;i+=2)pr.push(`<span class="dp"><b>${i/2+1}.</b> 등교 <em>${esc(ord[i])}</em> · 하교 <em>${ord[i+1]?esc(ord[i+1]):"—"}</em></span>`);
+    return `<div class="mnote lk"><div class="dh">🥛 우유당번 <button class="dr" onclick="askPin(dutyRedo)">🔀 다시 뽑기 🔒</button></div><div class="dps">${pr.join("")}</div></div>`;
+  }
+  return `<div class="mnote">잠기는 시간<br><b class="${a?"td":""}">오후 1시 50분</b><br><b class="${w?"td":""}">수요일은 낮 12시 10분</b></div>`;
+}
+const clkTxt=()=>{const n=new Date();return `${pad(n.getHours())}시 ${pad(n.getMinutes())}분`};
+function milkToggle(){chk.milkOpen=chk.milkOpen?0:1;save(KD,chk);mlk=null;autoCheck()}
+function board(){
+  if(admUntil===Infinity)admUntil=0; /* 체크판으로 돌아오면 다시 잠겨요 */
+  const pl=cfg.names,ml=pl.filter(n=>cfg.milk.includes(n)),all=full("phone",pl)&&(ml.length===0||full("milk",ml));
+  const days=["일","월","화","수","목","금","토"];
+  $.innerHTML=`<header><h1>📋 ${d.getMonth()+1}/${d.getDate()}(${days[d.getDay()]}) 우리 반 체크판</h1><span class="clk" id="clk">${clkTxt()}</span>${tmChip()}
+  <button onclick="allO('phone');allO('milk')">⭕ 전체 O</button><button onclick="ask(this,clr)">초기화</button><button onclick="fs()">${document.fullscreenElement?"⛶ 해제":"⛶ 전체화면"}</button><div class="mn"><button class="pri" onclick="tgm(event)">☰ 메뉴${(d.getDay()===1||d.getDay()===4)?" 🎵":""}${d.getDay()===3?" 🎲":""}${sNew()?` 📮${sNew()}`:""}${updNew()?" 🆕":""}</button><div class="dd" id="dd">${menuHTML()}</div></div></header>
+  <main>${panel("phone","📱 휴대폰 껐나요?",cfg.names)}${panel("milk","🥛 우유 마셨나요?",cfg.names.filter(n=>cfg.milk.includes(n)))}</main>${all?`<div class="allo"><div class="ring"></div><div class="bw"><div class="ban">🎉 모두 달성! 🎉</div></div></div>`:""}`;
+}
+function panel(k,title,list){
+  const lk=k==="milk"&&milkLocked();
+  const ord=lk?dutyOrder(list.filter(n=>!atOf(k,n)&&chk[k][n]!=="o")):[];
+  const c={o:0,x:0,n:0}; list.forEach(n=>{const v=atOf(k,n)?"o":chk[k][n];c[v==="o"?"o":v==="x"?"x":"n"]++});
+  const body=list.length?list.map(n=>{const at=atOf(k,n),v=at?"":(chk[k][n]||""),dy=lk&&!at&&v!=="o";return `<div class="s ${at?"a a-"+at:dy?"duty":v}" data-k="${k}" data-n="${esc(n)}"><span style="font-size:min(${Math.floor(88/Math.max([...n].length,3))}cqw,4.6vh)">${esc(n)}</span><i>${at?AL[at]+(at==="late"&&chk[k][n]==="o"?"⭕":""):dy?dutyLbl(ord.indexOf(n)):v==="o"?"⭕":v==="x"?"❌":""}</i></div>`}).join(""):`<div class="empty">${k==="milk"?"우유 신청 학생이 없어요. ‘⚙ 명단’에서 선택해 주세요.":"명단이 비어 있어요."}</div>`;
+  const mb=k!=="milk"?"":milkPast()?`<button onclick="ask(this,milkToggle)">${lk?"🔓 잠금 풀기":"🔒 다시 잠그기"}</button>`:`<button onclick="allO('milk')">전체 O</button>`;
+  const cnt=lk?`⭕<b class="c-o">${c.o}</b>🥛당번<b class="c-x">${c.n}</b>`:`⭕<b class="c-o">${c.o}</b>⬜<b class="c-n">${c.n}</b>`;
+  const dn=full(k,list);return `<section class="panel${dn?" done":""}"><div class="ph"><h2>${title}${lk?" 🔒":""}${dn?" ✅":""}</h2><span class="cnt">${cnt}</span>${mb}</div><div class="grid" style="grid-template-rows:repeat(${Math.max(5,Math.ceil(list.length/5))},minmax(0,1fr))">${body}</div>${k==="milk"?milkNote(lk,ord):""}${lk?`<div class="lockov">${LOCK_SVG}</div>`:""}</section>`;
+}
+$.addEventListener("click",e=>{
+  const s=e.target.closest(".s"); if(!s)return;
+  if(lp){lp=0;return}
+  const k=s.dataset.k,n=s.dataset.n,v=chk[k][n]||"";
+  const at=atOf(k,n);
+  if(at&&!(k==="phone"&&at==="late"))return; /* 지각생도 휴대폰 체크는 할 수 있어요 */
+  if(k==="milk"&&milkLocked())return;
+  const nx=v==="o"?"":"o";
+  if(nx)chk[k][n]=nx; else delete chk[k][n];
+  save(KD,chk); board();
+});
+function allO(k){if(k==="milk"&&milkLocked()){board();return}(k==="milk"?cfg.names.filter(n=>cfg.milk.includes(n)):cfg.names).forEach(n=>chk[k][n]="o");save(KD,chk);board()}
+function clr(){chk={phone:{},milk:{},lateDone:chk.lateDone};save(KD,chk);board()}
+function setup(){
+  const names=parse(draft);
+  $.innerHTML=`<div class="setup"><header><h1>⚙ 명단 설정</h1>${cfg.names.length?`<button onclick="cfg=load(KC,cfg);draft=cfg.names.join('\\n');mode='board';render()">취소</button>`:""}</header>
+  <p class="h">① 학생 이름 (한 줄에 한 명)</p>
+  <textarea id="ta" placeholder="김하늘&#10;이바다&#10;박구름">${esc(draft)}</textarea>
+  <p class="h">② 우유 신청 학생 (${names.length}명 중 <b id="mc">${cfg.milk.filter(n=>names.includes(n)).length}</b>명 선택)</p>
+  <div class="chips" id="chips"></div>
+  <p class="h">③ 지각 예외 학생 <span style="opacity:.8">— 8시 50분이 지나도 지각으로 표시하지 않아요 (이유는 선생님만 볼 수 있어요)</span></p>
+  <div class="chips" id="exchips"></div>
+  <div id="exrs"></div>
+  <p id="err" class="h" style="color:var(--no);font-weight:800"></p>
+  <button class="pri" onclick="finish()">저장하고 시작</button>
+  <p class="h" style="margin-top:22px">④ 선생님 비밀번호 <span style="opacity:.8">— 명단 · 시간표 · 메뉴 순서 바꾸기를 열 때 필요해요</span></p>
+  <div class="tr"><button onclick="changePin()">🔑 비밀번호 바꾸기</button><span id="pwmsg" class="h" style="color:var(--ok);font-weight:800"></span></div>
+  <p class="h" style="margin-top:22px">⑤ 데이터 옮기기 <span style="opacity:.8">— 다른 컴퓨터나 새 링크로 옮길 때: 원래 쓰던 곳에서 ‘백업 만들기’ → 글을 복사 → 새 곳에 붙여 넣고 ‘불러오기’</span></p>
+  <div class="tr"><button onclick="bkMake()">📤 백업 만들기</button><button onclick="ask(this,bkLoad)">📥 붙여넣은 백업 불러오기</button><span id="bkmsg" class="h" style="font-weight:800"></span></div>
+  <textarea id="bkt" style="height:90px;font-size:13px" placeholder="여기에 백업 글이 나오거나, 붙여 넣어요"></textarea></div>`;
+  const ta=document.getElementById("ta"); drawChips(); drawEx();
+  ta.addEventListener("input",()=>{draft=ta.value;drawChips();drawEx()});
+}
+function bkMake(){
+  const o={};try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith("classcheck:"))o[k]=localStorage.getItem(k)}}catch(e){}
+  const t=document.getElementById("bkt"),m=document.getElementById("bkmsg");t.value=JSON.stringify(o);t.focus();t.select();
+  const ok=()=>{m.style.color="var(--ok)";m.textContent="✅ 백업 글을 복사했어요. 새 곳에 붙여 넣으세요."},no=()=>{m.style.color="var(--ink)";m.textContent="글이 선택돼 있어요. Ctrl+C로 복사하세요."};
+  try{navigator.clipboard.writeText(t.value).then(ok,no)}catch(e){no()}
+}
+function bkLoad(){
+  const m=document.getElementById("bkmsg");let o;
+  try{o=JSON.parse(document.getElementById("bkt").value)}catch(e){m.style.color="var(--no)";m.textContent="백업 글이 올바르지 않아요. 전체를 다시 붙여 넣어 주세요.";return}
+  let n=0;Object.keys(o||{}).forEach(k=>{if(k.startsWith("classcheck:")&&typeof o[k]==="string"){try{localStorage.setItem(k,o[k]);n++}catch(e){}}});
+  if(!n){m.style.color="var(--no)";m.textContent="불러올 내용이 없어요.";return}
+  m.style.color="var(--ok)";m.textContent=`✅ ${n}개 항목을 불러왔어요. 잠시 후 새로 고침돼요.`;setTimeout(()=>location.reload(),1200);
+}
+function drawEx(){
+  const names=parse(draft),ex=cfg.ex||(cfg.ex={}),box=document.getElementById("exchips"),rs=document.getElementById("exrs");if(!box)return;
+  box.innerHTML=names.map(n=>`<button class="chip ${isEx(n)?"on":""}" data-c="${esc(n)}">${esc(n)}</button>`).join("");
+  const on=names.filter(isEx);
+  rs.innerHTML=on.length?on.map(n=>`<div class="tr"><b style="min-width:90px;font-size:18px">🕘 ${esc(n)}</b><input class="sgi exin" data-n="${esc(n)}" maxlength="40" value="${esc(ex[n]||"")}" placeholder="이유 (예: 아침 병원 진료, 아침 돌봄교실)"></div>`).join(""):`<p class="h" style="opacity:.7">예외 학생이 없어요. 위에서 이름을 누르면 추가돼요.</p>`;
+  box.onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const n=b.dataset.c;if(isEx(n))delete ex[n];else ex[n]="";drawEx()};
+  rs.oninput=e=>{const t=e.target;if(t.classList.contains("exin"))ex[t.dataset.n]=t.value};
+}
+function drawChips(){
+  const names=parse(draft); const box=document.getElementById("chips"); if(!box)return;
+  box.innerHTML=names.map(n=>`<button class="chip ${cfg.milk.includes(n)?"on":""}" data-c="${esc(n)}">${esc(n)}</button>`).join("");
+  document.getElementById("mc").textContent=cfg.milk.filter(n=>names.includes(n)).length;
+  box.onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const n=b.dataset.c;
+    cfg.milk=cfg.milk.includes(n)?cfg.milk.filter(x=>x!==n):[...cfg.milk,n];drawChips()};
+}
+function finish(){
+  const names=parse(draft); if(!names.length){document.getElementById("err").textContent="학생 이름을 입력해 주세요.";return}
+  const ex={};Object.keys(cfg.ex||{}).forEach(n=>{if(names.includes(n))ex[n]=String(cfg.ex[n]||"").trim()});
+  cfg={names,milk:cfg.milk.filter(n=>names.includes(n)),ex}; save(KC,cfg); mode="board"; render(); tick();
+}
+const tm=t=>{const [h,m]=String(t).split(":");return +h*60+ +m};
+function tick(){autoCheck();const ck=document.getElementById("clk");if(ck)ck.textContent=clkTxt();const n=new Date(),m=n.getHours()*60+n.getMinutes();const off=!(mode!=="board"||TM.run||TM.ring)&&sched.on&&sched.rows.some(r=>r[3]&&m>=tm(r[1])&&m<tm(r[2])&&!noCls(r))&&Date.now()>wake;document.getElementById("off").style.display=off?"block":"none";if(!off)hideOm();brkTick()}
+function schedView(){
+  $.innerHTML=`<div class="setup"><header><h1>⏰ 화면 꺼짐 시간표</h1><button class="pri" onclick="doneSched()">완료</button></header>
+  <p class="h"><label><input type="checkbox" ${sched.on?"checked":""} onchange="sched.on=this.checked;save(KS,sched)"> 시간표에 따라 화면 자동으로 끄기</label></p>
+  <div id="rows"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button onclick="sched.rows.push(['새 시간','14:30','15:00',1]);save(KS,sched);drawRows()">＋ 시간 추가</button>
+  <button onclick="ask(this,()=>{sched.rows=JSON.parse(JSON.stringify(DEF));save(KS,sched);drawRows()})">기본 시간표로 되돌리기</button></div>
+  <h2 style="margin:26px 0 4px;font-size:clamp(18px,2.6vw,28px)">📚 우리 반 학급시간표</h2>
+  <p class="h">과목을 적은 교시 앞의 쉬는시간에만 타이머가 나와요. <b>수업이 없는 칸은 비워 두세요</b> (예: 수요일 6교시). 적은 내용은 바로 저장돼요.</p>
+  <div id="ttg" class="ttg"></div>
+  <button style="margin-top:10px" onclick="ask(this,()=>{tt=TTD();save(KTT,tt);drawTT()})">학급시간표 모두 지우기</button></div>`;
+  drawRows();drawTT();
+}
+function drawRows(){
+  const box=document.getElementById("rows");
+  box.innerHTML=sched.rows.map((r,i)=>`<div class="tr" data-i="${i}"><input class="nm" data-f="0" value="${esc(r[0])}"><input type="time" data-f="1" value="${r[1]}"><span>~</span><input type="time" data-f="2" value="${r[2]}"><button class="tg ${r[3]?"offb":""}" data-f="t">${r[3]?"🌑 화면 끔":"☀ 화면 켬"}</button><button data-f="d">✕</button></div>`).join("");
+  box.oninput=e=>{const t=e.target;if(!t.dataset.f)return;sched.rows[+t.closest(".tr").dataset.i][+t.dataset.f]=t.value;save(KS,sched)};
+  box.onclick=e=>{const b=e.target.closest("button");if(!b)return;const i=+b.closest(".tr").dataset.i;if(b.dataset.f==="t")sched.rows[i][3]=sched.rows[i][3]?0:1;else sched.rows.splice(i,1);save(KS,sched);drawRows()};
+}
+/* ===== 선생님 잠금 (비밀번호) ===== */
+const LOCKED=["menued","setup","sched","roleedit"],KPW="classcheck:pin";
+let admUntil=0;
+const pw=()=>load(KPW,"7536"), admOk=()=>Date.now()<admUntil;
+function pinPad(title,check){
+  const m=document.getElementById("pin");let v="";
+  const draw=(msg,bad)=>{m.innerHTML=`<div class="pinc${bad?" bad":""}"><div class="pint">🔒 ${esc(title)}</div><div class="pind">${[0,1,2,3].map(i=>`<i class="${i<v.length?"on":""}"></i>`).join("")}</div><div class="pinm">${msg||"&nbsp;"}</div><div class="pink">${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join("")}<button data-k="x" class="pinx">취소</button><button data-k="0">0</button><button data-k="b">⌫</button></div></div>`};
+  draw();m.style.display="flex";
+  m.onclick=e=>{const b=e.target.closest("button");if(!b){if(e.target===m)m.style.display="none";return}
+    const k=b.dataset.k;
+    if(k==="x"){m.style.display="none";return}
+    if(k==="b"){v=v.slice(0,-1);draw();return}
+    if(v.length>=4)return;v+=k;draw();
+    if(v.length===4){const r=check(v);if(r===true){m.style.display="none"}else{const code=v;v="";setTimeout(()=>draw(typeof r==="string"?r:"비밀번호가 틀렸어요",true),150)}}
+  };
+}
+function askPin(ok){pinPad("선생님 비밀번호",c=>{if(c!==pw())return false;ok();return true})}
+function changePin(){
+  pinPad("지금 비밀번호를 입력하세요",c=>{if(c!==pw())return false;
+    setTimeout(()=>pinPad("새 비밀번호 4자리",n=>{setTimeout(()=>pinPad("새 비밀번호를 한 번 더",n2=>{if(n2!==n)return "두 번 입력한 번호가 달라요";save(KPW,n);const e=document.getElementById("pwmsg");if(e)e.textContent="✅ 비밀번호가 바뀌었어요.";return true}),0);return true}),0);
+    return true});
+}
+function go(m){
+  if(LOCKED.includes(m)&&!admOk()){const dd=document.getElementById("dd");if(dd)dd.style.display="none";askPin(()=>{admUntil=Infinity;go(m)});return}
+  if(m==="board"&&admUntil===Infinity)admUntil=0;
+  mode=m;render();tick();
+}
+function tgm(e){e.stopPropagation();const x=document.getElementById("dd");x.style.display=x.style.display==="flex"?"none":"flex"}
+document.addEventListener("click",()=>{const x=document.getElementById("dd");if(x)x.style.display="none"});
+const KSG="classcheck:songs:"+today, KBOX="classcheck:songbox";
+let songs=load(KSG,null)||[{t:"",d:0},{t:"",d:0},{t:"",d:0},{t:"",d:0}];while(songs.length<4)songs.push({t:"",d:0});let sbox=load(KBOX,[]), songTab="box";
+function songUrl(t){t=String(t||"").trim();if(!t)return "";if(/^https?:\/\//i.test(t))return t;if(/(youtube\.com|youtu\.be)/i.test(t))return "https://"+t;return "https://www.youtube.com/results?search_query="+encodeURIComponent(t)}
+function spinUI(title,pool,picks,steps,done){
+  const m=document.getElementById("sp");
+  m.innerHTML=`<div class="amc spc"><div class="amt">${esc(title)}</div>${picks.map((_,i)=>`<div class="spr"><b>${picks.length>1?i+1:"🎲"}</b><span id="spv${i}">…</span></div>`).join("")}</div>`;
+  m.style.display="flex";let i=0;
+  const run=()=>{
+    if(i>=picks.length){setTimeout(()=>{m.style.display="none";done()},1000);return}
+    const el=document.getElementById("spv"+i);let n=0;
+    const step=()=>{
+      if(n>=steps){el.textContent=picks[i];el.classList.add("lock");i++;setTimeout(run,400);return}
+      el.textContent=pool[Math.floor(Math.random()*pool.length)];n++;setTimeout(step,50+n*(steps>12?12:14));
+    };
+    step();
+  };
+  run();
+}
+function songView(){
+  const is=d.getDay()===1||d.getDay()===4;
+  $.innerHTML=`<div class="setup"><header><h1>🎵 점심시간 신청곡</h1><button class="pri" onclick="go('board')">닫기</button></header>
+  ${is?`<p class="h" style="font-weight:800">🎉 오늘은 신청곡 듣는 날!</p>`:""}
+  <div class="tabs"><button class="${songTab==="box"?"on":""}" onclick="songTab='box';songView()">📮 노래신청함 (${sbox.length})</button><button class="${songTab==="play"?"on":""}" onclick="songTab='play';songView()">▶ 오늘의 4곡</button><button class="${songTab==="hist"?"on":""}" onclick="songTab='hist';songView()">📜 지난 기록</button></div>
+  <div id="stab"></div></div>`;
+  songTab==="box"?drawBox():songTab==="hist"?drawSHist():drawPlay();
+}
+function drawBox(){
+  const el=document.getElementById("stab");
+  el.innerHTML=`<div class="rule">📌 한 번 뽑혀서 들은 노래는 다시 나오지 않아요. <b>제목이 같으면 가수가 달라도 같은 노래</b>로 봐요.<br>📌 번호마다 <b>일주일에 3곡</b>까지 신청할 수 있어요.</div>
+  <div class="fm">${whoHTML("s")}<div class="tr"><input id="st" class="sgi" placeholder="곡명" maxlength="60"><input id="sa" class="sgi" placeholder="가수명" maxlength="40"><button class="pri" onclick="addSong()">신청하기</button></div><p id="smsg" class="h" style="color:var(--no);font-weight:800"></p></div>
+  <div class="tr"><b>신청 목록 ${sbox.length}곡</b><span style="flex:1"></span><button class="pri" ${sbox.length?"":"disabled"} onclick="ask(this,pickSongs)">🎲 랜덤뽑기 (4곡)</button></div>
+  <div id="sl">${sbox.length?sbox.map((x,i)=>`<div class="li" data-i="${i}"><b>${i+1}</b><span class="tx">${esc(x.t)}${x.a?" - "+esc(x.a):""}</span>${whoTxt(x)?`<span class="m2">${esc(whoTxt(x))}</span>`:""}<button data-a="x">✕</button></div>`).join(""):`<p class="h">신청곡이 없어요.</p>`}</div>`;
+  el.onkeydown=e=>{if(e.key==="Enter"&&e.target.id&&(e.target.id==="sa"||e.target.id==="st"))addSong()};
+  whoBind("s","song");
+  document.getElementById("sl").onclick=e=>{const b=e.target.closest("button");if(!b)return;const i=+b.closest(".li").dataset.i;ask(b,()=>{qRefund("song",sbox[i]);sbox.splice(i,1);save(KBOX,sbox);songView()})};
+}
+const lbl=x=>(x.a?x.a+" - ":"")+x.t, norm=s=>s.toLowerCase().replace(/\s+/g,"");
+const KSH="classcheck:songhist",KGH="classcheck:gamehist";
+/* 지난 기록에 있는 노래 제목들 (예전 기록은 "가수 - 곡명"에서 곡명만 꺼내요) */
+const histTitles=()=>load(KSH,[]).flatMap(h=>h.ts||h.list.map(l=>l.includes(" - ")?l.slice(l.indexOf(" - ")+3):l)).map(norm);
+function addSong(){
+  const a=document.getElementById("sa").value.trim(),t=document.getElementById("st").value.trim(),mg=document.getElementById("smsg");
+  const err=m=>{mg.style.color="var(--no)";mg.textContent=m};
+  const w=whoGet("s","song",err);if(!w)return;
+  if(!t){err("곡명을 적어 주세요.");return}
+  if(sbox.some(y=>norm(y.t)===norm(t))){err("이미 신청함에 있는 노래예요. (제목이 같으면 같은 노래예요)");return}
+  if(histTitles().includes(norm(t))){err("전에 뽑혀서 들은 노래예요. 다른 노래를 신청해 주세요.");return}
+  sbox.push({a,t,...w});save(KBOX,sbox);qAdd("song",w.no,1);
+  songView();
+  const m2=document.getElementById("smsg");if(m2){m2.style.color="var(--ok)";m2.textContent=`신청 완료! (${w.no}번 이번 주 ${Math.max(0,qLeft("song",w.no))}곡 더 신청할 수 있어요)`}
+}
+function pickSongs(){
+  if(!sbox.length)return;
+  const a=[...sbox];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+  const p=a.slice(0,4),labels=p.map(lbl);
+  spinUI("🎵 오늘의 신청곡을 뽑는 중!",sbox.map(lbl),labels,9,()=>{
+    songs=[0,1,2,3].map(i=>p[i]?{t:labels[i],d:0}:{t:"",d:0});
+    save(KSG,songs);
+    const h=load(KSH,[]);h.unshift({date:today,list:labels,ts:p.map(x=>x.t)});save(KSH,h.slice(0,60));
+    sbox=[];save(KBOX,sbox);songTab="play";songView();
+  });
+}
+function drawSHist(){
+  const h=load(KSH,[]);
+  document.getElementById("stab").innerHTML=h.length?h.map(x=>`<div class="li" style="display:block"><b>${esc(x.date)}</b><div style="margin-top:4px">${x.list.map((t,i)=>`${i+1}. ${esc(t)}`).join("<br>")}</div></div>`).join(""):`<p class="h">기록이 없어요.</p>`;
+}
+function drawPlay(){
+  document.getElementById("stab").innerHTML=`
+  <div id="sg"></div>
+  <button style="margin-top:10px" onclick="ask(this,()=>{songs=[{t:'',d:0},{t:'',d:0},{t:'',d:0},{t:'',d:0}];save(KSG,songs);drawSongs()})">오늘의 4곡 비우기</button>`;
+  drawSongs();
+}
+function drawSongs(){
+  const box=document.getElementById("sg");
+  box.innerHTML=songs.map((x,i)=>`<div class="tr" data-i="${i}"><b class="num">${i+1}</b><input class="sgi" value="${esc(x.t)}" placeholder="가수 - 곡명 또는 유튜브 주소"><a class="abtn pri" data-a="p" href="${esc(songUrl(x.t))||"#"}" target="_blank" rel="noopener">▶ 재생</a><button data-a="d" class="${x.d?"dn":""}">${x.d?"✔ 들었어요":"대기"}</button></div>`).join("");
+  box.oninput=e=>{if(e.target.classList.contains("sgi")){const r=e.target.closest(".tr");songs[+r.dataset.i].t=e.target.value;r.querySelector("a").href=songUrl(e.target.value)||"#";save(KSG,songs)}};
+  box.onclick=e=>{const b=e.target.closest("button,a");if(!b)return;const i=+b.closest(".tr").dataset.i;
+    if(b.dataset.a==="p"){if(!songs[i].t.trim()){e.preventDefault();return}songs[i].d=1;save(KSG,songs);setTimeout(drawSongs,50);return}
+    songs[i].d=songs[i].d?0:1;save(KSG,songs);drawSongs()};
+}
+/* ===== 번호로 신청 · 일주일 횟수 제한 · 이름 숨기기 (신청곡/놀이 공통) ===== */
+const KQ="classcheck:quota",QMAX={song:3,game:1};
+const wkKey=()=>{const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`}; /* 이번 주 월요일 */
+function quota(){let q=load(KQ,null);if(!q||q.wk!==wkKey())q={wk:wkKey(),song:{},game:{}};return q}
+const qLeft=(k,no)=>QMAX[k]-(quota()[k][no]||0);
+function qAdd(k,no,dv){const q=quota();q[k][no]=Math.max(0,(q[k][no]||0)+dv);save(KQ,q)}
+const noName=v=>{const n=+String(v).trim();return Number.isInteger(n)&&n>=1&&n<=cfg.names.length?cfg.names[n-1]:""};
+const whoTxt=x=>x.an?"익명":(x.name||x.who||"");
+function whoHTML(p){return `<div class="who"><label for="${p}_no">🙋 내 번호</label><input id="${p}_no" class="nob" inputmode="numeric" maxlength="2" placeholder="번호"><span id="${p}_nm" class="nmv"></span><label class="anon"><input type="checkbox" id="${p}_an"> 🙈 이름 숨기기</label></div>`}
+function whoBind(p,k){
+  const i=document.getElementById(p+"_no"),s=document.getElementById(p+"_nm");
+  const up=()=>{const n=noName(i.value),no=+i.value;if(!i.value.trim()){s.textContent="";return}
+    if(!n){s.textContent="없는 번호예요";s.style.color="var(--no)";return}
+    const l=Math.max(0,qLeft(k,no));s.textContent=`${n} · 이번 주 ${l}번 남음`;s.style.color=l?"var(--ink)":"var(--no)"};
+  i.addEventListener("input",up);up();
+}
+function whoGet(p,k,err){
+  const v=document.getElementById(p+"_no").value.trim(),no=+v,n=noName(v);
+  if(!n){err("내 번호를 바르게 적어 주세요.");return null}
+  if(qLeft(k,no)<=0){err(`${no}번은 이번 주 신청을 다 했어요. (${k==="song"?"노래는 일주일에 3곡까지":"놀이는 일주일에 1번"})`);return null}
+  return {no,name:n,an:document.getElementById(p+"_an").checked,wk:wkKey()};
+}
+function qRefund(k,x){if(x&&x.no&&x.wk===wkKey())qAdd(k,x.no,-1)} /* 선생님이 ✕로 지우면 횟수를 돌려줘요 */
+
+/* ===== 우리반 놀이 추첨함 ===== */
+const KGB="classcheck:gamebox",KGP="classcheck:gamepick";
+let gbox=load(KGB,[]),gpick=load(KGP,null),gTab="box";
+const GQ=[["what","무엇을 하고 놀까요?","예) 얼음땡"],["how","놀이방식은 무엇인가요?","어떻게 하는 놀이인지 적어 주세요"],["rule","어떤 규칙이 있나요?","지켜야 할 규칙을 적어 주세요"],["need","필요한 준비물이나 장소가 있나요?","없으면 비워 두세요"]];
+function gameView(){
+  const wed=d.getDay()===3;
+  $.innerHTML=`<div class="setup"><header><h1>🎲 우리반 놀이 추첨함</h1><button class="pri" onclick="go('board')">닫기</button></header>
+  ${wed?`<p class="h" style="font-weight:800">🎉 오늘은 놀이 하는 수요일!</p>`:""}
+  <div class="tabs"><button class="${gTab==="box"?"on":""}" onclick="gTab='box';gameView()">📮 놀이 신청함 (${gbox.length})</button><button class="${gTab==="res"?"on":""}" onclick="gTab='res';gameView()">🎯 이번 주 놀이</button><button class="${gTab==="hist"?"on":""}" onclick="gTab='hist';gameView()">📜 지난 기록</button></div>
+  <div id="gtab"></div></div>`;
+  gTab==="box"?drawGBox():gTab==="hist"?drawGHist():drawGRes();
+}
+function drawGBox(){
+  const el=document.getElementById("gtab");
+  el.innerHTML=`<div class="rule">📌 번호마다 <b>일주일에 1번</b>만 신청할 수 있어요.</div><div class="fm">${whoHTML("g")}
+  ${GQ.map(q=>`<label>${q[1]}</label>${q[0]==="what"?`<input id="g_${q[0]}" maxlength="60" placeholder="${q[2]}">`:`<textarea id="g_${q[0]}" maxlength="400" placeholder="${q[2]}"></textarea>`}`).join("")}
+  <p id="gmsg" class="h" style="color:var(--no);font-weight:800"></p><button class="pri" onclick="addGame()">신청하기</button></div>
+  <div class="tr" style="margin-top:14px"><b>신청된 놀이 ${gbox.length}개</b><span style="flex:1"></span><button class="pri" ${gbox.length?"":"disabled"} onclick="ask(this,pickGame)">🎲 놀이 뽑기 (1개)</button></div>
+  <div id="gl">${gbox.length?gbox.map((x,i)=>`<div class="li" data-i="${i}"><b>${i+1}</b><span class="tx">${esc(x.what)}${x.who?" · "+esc(x.who):""}</span><button data-a="x">✕</button></div>`).join(""):`<p class="h">신청된 놀이가 없어요.</p>`}</div>`;
+  whoBind("g","game");
+  document.getElementById("gl").onclick=e=>{const b=e.target.closest("button");if(!b)return;const i=+b.closest(".li").dataset.i;ask(b,()=>{qRefund("game",gbox[i]);gbox.splice(i,1);save(KGB,gbox);gameView()})};
+}
+function addGame(){
+  const v=k=>document.getElementById("g_"+k).value.trim();
+  const err=m=>{document.getElementById("gmsg").textContent=m};
+  const w=whoGet("g","game",err);if(!w)return;
+  if(!v("what")){err("‘무엇을 하고 놀까요?’를 적어 주세요.");return}
+  gbox.push({...w,who:whoTxt(w),what:v("what"),how:v("how"),rule:v("rule"),need:v("need")});save(KGB,gbox);qAdd("game",w.no,1);gameView();
+}
+function pickGame(){
+  if(!gbox.length)return;
+  const i=Math.floor(Math.random()*gbox.length),g=gbox[i];
+  spinUI("🎲 이번 주 놀이를 뽑는 중!",gbox.map(x=>x.what),[g.what],16,()=>{
+    gpick={date:today,g};gbox.splice(i,1);
+    save(KGB,gbox);save(KGP,gpick);
+    const h=load(KGH,[]);h.unshift({date:today,what:g.what,who:g.who||""});save(KGH,h.slice(0,60));
+    gTab="res";gameView();
+  });
+}
+function drawGHist(){
+  const h=load(KGH,[]);
+  document.getElementById("gtab").innerHTML=h.length?h.map(x=>`<div class="li"><b>${esc(x.date)}</b><span class="tx">${esc(x.what)}${x.who?" · "+esc(x.who):""}</span></div>`).join(""):`<p class="h">기록이 없어요.</p>`;
+}
+function drawGRes(){
+  const el=document.getElementById("gtab");
+  if(!gpick){el.innerHTML=`<p class="h">뽑힌 놀이가 없어요.</p>`;return}
+  const g=gpick.g,row=(q,a)=>a?`<div class="q">${q}</div><div class="a">${esc(a)}</div>`:"";
+  el.innerHTML=`<div class="gres"><h3>🎉 ${esc(g.what)}</h3>${g.who?`<div class="q">제안한 사람</div><div class="a">${esc(g.who)}</div>`:""}${row(GQ[1][1],g.how)}${row(GQ[2][1],g.rule)}${row(GQ[3][1],g.need)}<div class="q" style="margin-top:14px">뽑은 날: ${esc(gpick.date)}</div></div>
+  <button style="margin-top:10px" onclick="ask(this,()=>{gpick=null;save(KGP,gpick);gameView()})">결과 지우기</button>`;
+}
+/* ===== 학급시간표 ===== */
+const KTT="classcheck:timetable",TDAY=["월","화","수","목","금"];
+const TTD=()=>TDAY.map(()=>Array(6).fill(""));
+let tt=load(KTT,null);if(!tt||tt.length!==5)tt=TTD();
+function drawTT(){
+  const g=document.getElementById("ttg");if(!g)return;const td=d.getDay()-1;
+  g.innerHTML=`<b></b>${TDAY.map((x,i)=>`<b class="${i===td?"td":""}">${x}</b>`).join("")}`+[0,1,2,3,4,5].map(p=>`<b>${p+1}교시</b>${TDAY.map((_,i)=>`<input data-d="${i}" data-p="${p}" maxlength="8" value="${esc(tt[i][p]||"")}">`).join("")}`).join("");
+  g.oninput=e=>{const t=e.target;if(t.dataset.d===undefined)return;tt[+t.dataset.d][+t.dataset.p]=t.value.trim();save(KTT,tt)};
+}
+/* ===== 쉬는시간 타이머 (체크판 화면 가운데) =====
+   시간표에서 '화면 켬' 시간 중 바로 다음이 수업(화면 끔)인 시간이 쉬는시간이에요. (아침시간 제외, 점심시간 포함)
+   다음 수업 시작 2분 전에 끝나고, 마지막 10초는 '삐' 소리로 알려 줘요. */
+let brkSaid=-1;
+/* 수업 시간은 이름(○교시)으로 판단해요. 수업 중에 '화면 켬'으로 바꿔도 쉬는시간으로 착각하지 않아요 */
+const isCls=r=>/\d+\s*교시/.test(String(r[0]))||(!sched.rows.some(x=>/\d+\s*교시/.test(String(x[0])))&&!!r[3]);
+const perOf=(r,i)=>{const m=String(r[0]).match(/(\d+)\s*교시/);if(m)return +m[1];return sched.rows.slice(0,i+1).filter(isCls).length};
+function curBreak(){
+  if(!school())return null;
+  const n=new Date(),now=n.getHours()*60+n.getMinutes()+n.getSeconds()/60,rs=sched.rows;
+  for(let i=0;i<rs.length-1;i++){
+    const r=rs[i],nx=rs[i+1];
+    if(isCls(r)||!isCls(nx)||/아침/.test(r[0]))continue;
+    const st=tm(r[1]),en=tm(nx[1])-2;
+    if(now<st||now>=en)continue;
+    const per=perOf(nx,i+1),dy=tt[d.getDay()-1]||[],sub=(dy[per-1]||"").trim();
+    if(!sub)continue; /* 학급시간표에서 다음 교시가 비어 있으면 수업이 없는 것 → 타이머·소리 없음 */
+    const end=new Date(n.getFullYear(),n.getMonth(),n.getDate(),0,en,0,0).getTime();
+    return {name:r[0],per,sub,left:Math.max(0,Math.ceil((end-Date.now())/1000))};
+  }
+  return null;
+}
+/* 학급시간표에 과목이 비어 있는 교시는 수업이 없는 시간 → 화면을 끄지 않아요 (시간표를 하나도 안 적었으면 예전처럼 꺼져요) */
+function noCls(r){
+  if(!isCls(r)||!tt.some(x=>x.some(Boolean)))return false;
+  const m=String(r[0]).match(/(\d+)\s*교시/);if(!m)return false;
+  const dy=tt[d.getDay()-1];return !!dy&&!(dy[+m[1]-1]||"").trim();
+}
+function brkTick(){
+  const o=document.getElementById("brk");if(!o)return;
+  const b=(mode==="board"&&!TM.ring&&document.getElementById("off").style.display!=="block")?curBreak():null;
+  if(!b){o.style.display="none";brkSaid=-1;return}
+  const end=b.left<=10;
+  o.innerHTML=`<div class="brkc${end?" end":""}"><div class="brkl">${b.per}교시${b.sub?" "+esc(b.sub):""}</div><div class="brkd">${mmss(b.left)}</div></div>`;
+  o.style.display="flex";
+  if(end&&b.left>0&&brkSaid!==b.left){brkSaid=b.left;tmBeep()}
+}
+/* 소리는 화면을 한 번이라도 터치해야 나올 수 있어서, 첫 터치 때 소리를 준비해요 */
+document.addEventListener("pointerdown",()=>tmPrime(),{capture:true});
+function doneSched(){sched.rows.sort((a,b)=>tm(a[1])-tm(b[1]));save(KS,sched);mode="board";render();tick()}
+let omT=0;
+function hideOm(){clearTimeout(omT);document.getElementById("offm").style.display="none"}
+function showOm(){
+  const m=document.getElementById("offm"),n=new Date(),now=n.getHours()*60+n.getMinutes();
+  m.innerHTML=`<div style="font-weight:800;font-size:clamp(16px,2.4vw,22px);margin-bottom:8px">⏰ 시간표 <span style="font-weight:400;opacity:.7">${pad(n.getHours())}:${pad(n.getMinutes())}</span></div>
+  <button class="omw" data-a="w">☀ 이번 시간만 화면 켜기</button>
+  ${sched.rows.map((r,i)=>`<div class="omr ${r[3]&&now>=tm(r[1])&&now<tm(r[2])?"cur":""}"><span style="flex:1">${esc(r[0])} ${r[1]}~${r[2]}</span><button data-a="t" data-i="${i}">${r[3]?"🌑 끔":"☀ 켬"}</button></div>`).join("")}
+  <div class="omr"><span style="flex:1">자동 꺼짐 기능</span><button data-a="m">${sched.on?"사용 중":"꺼짐"}</button></div>`;
+  m.style.display="block";clearTimeout(omT);omT=setTimeout(hideOm,5000);
+}
+let offLast=0,offT=0;
+/* 수업 중 두 번 터치로 켠 뒤: 화면을 만지는 동안 계속 켜두고, 2분 동안 안 만지면 다시 꺼짐 */
+const IDLE=2*60*1000;
+["pointerdown","keydown","wheel"].forEach(t=>document.addEventListener(t,()=>{const n=Date.now();if(wake>n&&document.getElementById("off").style.display!=="block")wake=Math.max(wake,n+IDLE)},true));
+document.getElementById("off").addEventListener("click",e=>{
+  const m=document.getElementById("offm"),inM=!!e.target.closest("#offm"),b=e.target.closest("#offm button");
+  if(b){
+    clearTimeout(offT);offLast=0;
+    const a=b.dataset.a;
+    if(a==="w"){const n=new Date(),now=n.getHours()*60+n.getMinutes(),r=sched.rows.find(r=>r[3]&&now>=tm(r[1])&&now<tm(r[2]));if(r)wake=new Date(n.getFullYear(),n.getMonth(),n.getDate(),0,tm(r[2]),0,0).getTime()}
+    else if((a==="t"||a==="m")&&!admOk()){clearTimeout(omT);askPin(()=>{admUntil=Date.now()+60000;b.click()});return}
+    else if(a==="t"){const r=sched.rows[+b.dataset.i];r[3]=r[3]?0:1;save(KS,sched)}
+    else if(a==="m"){sched.on=!sched.on;save(KS,sched)}
+    tick();
+    if(document.getElementById("off").style.display==="block")showOm();
+    return;
+  }
+  const now=Date.now();
+  if(now-offLast<400){clearTimeout(offT);offLast=0;wake=now+IDLE;hideOm();tick();return}
+  offLast=now;clearTimeout(offT);
+  offT=setTimeout(()=>{if(inM)showOm();else m.style.display==="block"?hideOm():showOm()},400);
+});
+function chkDay(){tick();const n=new Date();const t=`${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`;if(t!==today)location.reload()}
+setInterval(chkDay,5000);setInterval(tick,1000);document.addEventListener("visibilitychange",chkDay);window.addEventListener("focus",chkDay);
+function fs(){try{const e=document.documentElement;if(document.fullscreenElement){document.exitFullscreen()}else{const r=e.requestFullscreen||e.webkitRequestFullscreen;if(r){const p=r.call(e);if(p&&p.catch)p.catch(()=>{})}}}catch(x){}}
+document.addEventListener("fullscreenchange",()=>{if(mode==="board")board()});
+function ask(b,fn){
+  if(b.dataset.arm){clearTimeout(+b.dataset.arm);delete b.dataset.arm;fn();return}
+  const old=b.textContent;b.textContent="한 번 더 누르세요";b.classList.add("armed");
+  b.dataset.arm=setTimeout(()=>{b.textContent=old;delete b.dataset.arm;b.classList.remove("armed")},3000);
+}
+
+/* ===== 메뉴 (순서 편집 가능) ===== */
+const MENU={sched:"⏰ 시간표",song:"🎵 신청곡",game:"🎲 놀이 추첨함",timer:"⏱ 타이머",role:"🧹 1인1역",sugg:"📮 건의사항",upd:"📢 업데이트 내용",setup:"⚙ 명단"};
+const KMO="classcheck:menuorder";
+function mOrder(){const o=load(KMO,[]).filter(k=>MENU[k]);Object.keys(MENU).forEach(k=>{if(!o.includes(k))o.push(k)});return o}
+function mBadge(k){return k==="sugg"&&sNew()?` <span class="bdg">${sNew()}</span>`:k==="upd"&&updNew()?` <span class="bdg">NEW</span>`:""}
+function menuHTML(){const L=k=>LOCKED.includes(k)?" 🔒":"";return mOrder().map(k=>`<button onclick="go('${k}')">${MENU[k]}${L(k)}${mBadge(k)}</button>`).join("")+`<button style="opacity:.75;border-top:1px solid var(--line)" onclick="go('menued')">✏ 메뉴 순서 바꾸기${L("menued")}</button>`}
+function menuEdit(){
+  const o=mOrder();
+  $.innerHTML=`<div class="setup"><header><h1>✏ 메뉴 순서 바꾸기</h1><button class="pri" onclick="go('board')">완료</button></header>
+  <p class="h">▲▼ 버튼으로 순서를 바꾸면 바로 저장돼요.</p>
+  <div id="mel">${o.map((k,i)=>`<div class="li" data-i="${i}"><b>${i+1}</b><span class="tx">${MENU[k]}</span><button data-a="u" ${i?"":"disabled style='opacity:.3'"}>▲</button><button data-a="d" ${i<o.length-1?"":"disabled style='opacity:.3'"}>▼</button></div>`).join("")}</div>
+  <button style="margin-top:10px" onclick="ask(this,()=>{save(KMO,[]);menuEdit()})">기본 순서로 되돌리기</button></div>`;
+  document.getElementById("mel").onclick=e=>{const b=e.target.closest("button");if(!b||b.disabled)return;const i=+b.closest(".li").dataset.i,j=b.dataset.a==="u"?i-1:i+1;[o[i],o[j]]=[o[j],o[i]];save(KMO,o);menuEdit()};
+}
+
+/* ===== 건의사항 (이 체크판 프로그램의 기능에 대한 건의) ===== */
+const KSUG="classcheck:sugg";
+let sugg=load(KSUG,[]),sTab="write";
+const sNew=()=>sugg.filter(x=>!x.st).length, sDone=()=>sugg.filter(x=>x.st).length;
+const md=s=>esc(String(s||"").slice(5).replace("-","/"));
+function suggView(){
+  $.innerHTML=`<div class="setup"><header><h1>📮 건의사항</h1><button class="pri" onclick="go('board')">닫기</button></header>
+  <div class="tabs"><button class="${sTab==="write"?"on":""}" onclick="sTab='write';suggView()">✏ 건의하기</button><button class="${sTab==="list"?"on":""}" onclick="sTab='list';suggView()">📋 건의 목록${sNew()?` <span class="bdg">${sNew()}</span>`:""}</button><button class="${sTab==="done"?"on":""}" onclick="sTab='done';suggView()">✅ 완료 (${sDone()})</button></div>
+  <div id="sgt"></div></div>`;
+  sTab==="write"?drawSW():sTab==="list"?drawSL():drawSD();
+}
+function drawSW(){
+  document.getElementById("sgt").innerHTML=`<div class="fm">
+  <p class="h" style="font-size:clamp(14px,1.9vw,19px)">💡 이 <b>체크판 프로그램</b>에 있었으면 하는 기능이나, 불편하거나 고쳤으면 하는 점을 적어 주세요.</p>
+  <label>건의 내용 <span style="font-weight:400;color:var(--sub)">(짧게 한두 줄, 100자까지)</span></label><textarea id="s_t" maxlength="100" placeholder="예) 타이머에 3분 버튼도 있었으면 좋겠어요"></textarea>
+  <label>이름 <span style="font-weight:400;color:var(--sub)">(안 써도 돼요)</span></label><input id="s_w" maxlength="10" placeholder="익명">
+  <p id="smsg2" class="h" style="font-weight:800"></p><button class="pri" style="padding:12px 24px;font-size:clamp(16px,2.2vw,22px)" onclick="addSugg()">📮 건의하기</button></div>`;
+}
+function addSugg(){
+  const ta=document.getElementById("s_t"),w=document.getElementById("s_w"),mg=document.getElementById("smsg2"),t=ta.value.trim();
+  if(!t){mg.style.color="var(--no)";mg.textContent="건의 내용을 적어 주세요.";return}
+  if(sugg.some(x=>norm(x.t)===norm(t))){mg.style.color="var(--no)";mg.textContent="똑같은 건의가 이미 있어요.";return}
+  sugg.unshift({id:Date.now(),t,w:w.value.trim(),date:today,st:""});save(KSUG,sugg.slice(0,200));
+  ta.value="";w.value="";mg.style.color="var(--ok)";mg.textContent="📮 건의가 전달됐어요! 고마워요.";
+}
+function drawSL(){
+  const el=document.getElementById("sgt"),l=sugg.filter(x=>!x.st);
+  el.innerHTML=l.length?`<p class="h">선생님이 확인하고 ✔를 누르면 ‘완료’로 옮겨져요.</p>`+l.map(x=>`<div class="sgc" data-id="${x.id}"><div class="sgr"><div style="flex:1;min-width:0"><div class="t">${esc(x.t)}</div><div class="m">${esc(x.w||"익명")} · ${md(x.date)}</div></div><button class="ckb" data-s="ok" title="확인 완료">✔</button></div></div>`).join(""):`<p class="h">새 건의가 없어요. 👏</p>`;
+  el.onclick=e=>{const b=e.target.closest("button[data-s]");if(!b)return;const x=sugg.find(y=>y.id===+b.closest("[data-id]").dataset.id);if(!x)return;x.st="done";x.dd=today;save(KSUG,sugg);suggView()};
+}
+function drawSD(){
+  const el=document.getElementById("sgt"),l=sugg.filter(x=>x.st);
+  el.innerHTML=l.length?`<div class="tr"><b>완료된 건의 ${l.length}개</b><span style="flex:1"></span><button onclick="ask(this,()=>{sugg=sugg.filter(x=>!x.st);save(KSUG,sugg);suggView()})">완료 목록 모두 지우기</button></div>`+l.map(x=>`<div class="li" data-id="${x.id}"><span class="tx">✅ ${esc(x.t)}</span><span class="m2">${esc(x.w||"익명")} · ${md(x.date)}</span><button data-s="undo" title="건의 목록으로 되돌리기">↩</button><button data-s="del">✕</button></div>`).join(""):`<p class="h">완료된 건의가 없어요.</p>`;
+  el.onclick=e=>{const b=e.target.closest("button[data-s]");if(!b)return;const id=+b.closest("[data-id]").dataset.id,x=sugg.find(y=>y.id===id);if(!x)return;
+    if(b.dataset.s==="del"){ask(b,()=>{sugg=sugg.filter(y=>y.id!==id);save(KSUG,sugg);suggView()});return}
+    x.st="";save(KSUG,sugg);suggView()};
+}
+
+/* ===== 업데이트 내용 =====
+   업데이트할 때마다: 같은 날이면 그 날짜 items 끝에, 새 날짜면 맨 위에 덩어리를 추가하고 UPD_VER를 바꿔요. */
+const UPD_VER="2026-10-28-1";
+const UPD=[
+  {date:"2026-10-28",items:[
+    "신청곡과 놀이는 내 번호를 적고 신청해요. 노래는 일주일에 3곡, 놀이는 일주일에 1번까지예요.",
+    "‘이름 숨기기’에 체크하면 신청 목록에 ‘익명’으로 나와요.",
+    "한 번 뽑혀서 들은 노래는 다시 나오지 않아요. 제목이 같으면 가수가 달라도 같은 노래예요.",
+    "체크판 위쪽에 지금 시각이 나와요.",
+    "우유판이 잠기면 우유당번을 랜덤으로 뽑아 ‘1. 등교/하교, 2. 등교/하교…’ 순서로 정해 줘요."]},
+  {date:"2026-10-23",items:[
+    "쉬는시간·점심시간에 화면 가운데 타이머가 나와요. (수업 2분 전 종료)",
+    "10초 남으면 ‘삐’ 소리가 나요.",
+    "타이머 위에 다음 교시와 과목이 나와요.",
+    "신청곡을 4곡까지 뽑아요."]},
+  {date:"2026-10-21",items:[
+    "글칸을 누르면 화면 키보드가 나와요. (‘한글/ENG’로 전환)",
+    "키보드를 닫았으면 ‘⌨ 키보드’ 버튼으로 다시 켜요.",
+    "메뉴에 ‘1인1역’이 생겼어요. 내 이름을 누르면 내 역할이 나와요."]},
+  {date:"2026-10-19",items:[
+    "메뉴에 ‘건의사항’과 ‘업데이트 내용’이 생겼어요.",
+    "우유판이 잠기면 자물쇠 그림이 나와요.",
+    "지각한 친구도 휴대폰 칸을 체크할 수 있어요.",
+    "🔒 메뉴는 선생님만 열 수 있어요."]},
+  {date:"2026-10-16",items:[
+    "8시 50분까지 휴대폰 체크를 안 하면 ‘지각’이 돼요.",
+    "우유판은 오후 1시 50분(수요일 12시 10분)에 잠기고, 못 마신 친구는 우유당번이 돼요.",
+    "수업 중 꺼진 화면은 두 번 터치하면 켜져요."]}
+];
+const KUPS="classcheck:updseen";
+const updNew=()=>load(KUPS,"")!==UPD_VER;
+function updView(){
+  const nw=updNew();save(KUPS,UPD_VER);
+  $.innerHTML=`<div class="setup"><header><h1>📢 업데이트 내용</h1><button class="pri" onclick="go('board')">닫기</button></header>
+  ${UPD.map((u,j)=>`<div class="sgc"><div class="uh">📅 ${+u.date.slice(5,7)}월 ${+u.date.slice(8)}일 업데이트 ${nw&&j===0?`<span class="bdg">NEW</span>`:""}</div><ol class="ul">${u.items.map(t=>`<li>${esc(t)}</li>`).join("")}</ol></div>`).join("")}</div>`;
+}
+
+/* ===== 타이머 ===== */
+/* 타임타이머 모양 시계: 0이 맨 위, 숫자는 반시계 방향, 시간이 지날수록 빨간색이 차올라요 */
+const dPt=(th,r)=>{const a=th*Math.PI/180;return [+(200+r*Math.sin(a)).toFixed(2),+(200-r*Math.cos(a)).toFixed(2)]};
+function dWedge(th,r){
+  if(th<=0.05)return "M200 200";
+  if(th>=359.9)return `M200 ${200-r} A${r} ${r} 0 1 0 200 ${200+r} A${r} ${r} 0 1 0 200 ${200-r} Z`;
+  const e=dPt(th,r);return `M200 200 L200 ${200-r} A${r} ${r} 0 ${th>180?1:0} 1 ${e[0]} ${e[1]} Z`;
+}
+function dElapsed(){return TM.total-(TM.run?Math.max(0,(TM.end-Date.now())/1000):TM.left)}
+function dialSVG(){
+  const k=360/Math.max(1,TM.total),th=Math.min(360,Math.max(0,dElapsed()*k));
+  let t="";
+  for(let i=0;i<60;i++){const a=dPt(i*6,i%5?108:104),b=dPt(i*6,i%5?114:118);t+=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#2a2d3e" stroke-width="${i%5?1.5:3}"/>`}
+  const h=dPt(th,102);
+  return `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="타이머 시계"><rect x="6" y="6" width="388" height="388" rx="58" fill="#30344a"/><rect x="24" y="24" width="352" height="352" rx="42" fill="#f6f6f9"/><circle cx="200" cy="200" r="162" fill="#fcfcfe" stroke="#d9dbe6" stroke-width="3"/><path id="dRed" d="${dWedge(th,102)}" fill="#d6333a"/>${t}<line id="dHand0" x1="200" y1="200" x2="${h[0]}" y2="${h[1]}" stroke="#c9ccd9" stroke-width="12" stroke-linecap="round"/><line id="dHand" x1="200" y1="200" x2="${h[0]}" y2="${h[1]}" stroke="#fff" stroke-width="8" stroke-linecap="round"/><rect x="128" y="168" width="144" height="64" rx="32" fill="#fff" stroke="#cfd2de" stroke-width="3"/><text id="dTxt" x="200" y="201" text-anchor="middle" dominant-baseline="central" font-size="40" font-weight="800" fill="#22263a" style="font-variant-numeric:tabular-nums">${mmss(TM.left)}</text></svg>`;
+}
+function dialUpdate(){
+  const r=document.getElementById("dRed");if(!r)return;
+  const k=360/Math.max(1,TM.total),th=Math.min(360,Math.max(0,dElapsed()*k)),h=dPt(th,102);
+  r.setAttribute("d",dWedge(th,102));
+  ["dHand0","dHand"].forEach(id=>{const e=document.getElementById(id);e.setAttribute("x2",h[0]);e.setAttribute("y2",h[1])});
+}
+
+let TM={total:300,left:300,end:0,run:false,ring:false,said:-1},tmRing=0;
+const mmss=t=>pad(Math.floor(t/60))+":"+pad(t%60);
+function tmChip(){return (TM.run||TM.ring)?`<button id="tmchip" class="pri" onclick="go('timer')">⏱ ${mmss(TM.left)}</button>`:""}
+let tmAudio=null;
+function tmPrime(){try{if(!tmAudio)tmAudio=new (window.AudioContext||window.webkitAudioContext)();if(tmAudio.state==="suspended")tmAudio.resume()}catch(e){}}
+function tmBeep(){try{if(!tmAudio)return;const t=tmAudio.currentTime,o=tmAudio.createOscillator(),g=tmAudio.createGain();o.type="sine";o.frequency.value=880;g.gain.setValueAtTime(.3,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.connect(g);g.connect(tmAudio.destination);o.start(t);o.stop(t+.25)}catch(e){}}
+
+function timerView(){
+  const q=[1,3,5,10,15,20,30];
+  $.innerHTML=`<div class="setup"><header><h1>⏱ 타이머</h1><button class="pri" onclick="go('board')">닫기</button></header>
+  <div class="tmw"><div class="tmdial">${dialSVG()}</div><div class="tmr">
+  <div class="tr" style="justify-content:center;gap:12px"><button class="pri tmb2" onclick="tmStart()">${TM.run?"⏸ 일시정지":(TM.left>0&&TM.left<TM.total?"▶ 이어서":"▶ 시작")}</button><button class="tmb2" onclick="tmReset()">↺ 처음으로</button></div></div></div>
+  <div class="chips">${q.map(m=>`<button class="chip ${TM.total===m*60?"on":""}" onclick="tmSet(${m*60})">${m}분</button>`).join("")}</div>
+  <div class="tr"><input id="tmm" type="number" inputmode="numeric" min="0" max="180" placeholder="분" style="width:90px"> 분 <input id="tms" type="number" inputmode="numeric" min="0" max="59" placeholder="초" style="width:90px"> 초 <button onclick="tmCustom()">직접 설정</button></div></div>`;
+}
+function tmSet(sec){TM.total=sec;TM.left=sec;TM.run=false;TM.said=-1;timerView();tick()}
+function tmCustom(){
+  const m=Math.min(180,Math.max(0,parseInt(document.getElementById("tmm").value)||0)),sc=Math.min(59,Math.max(0,parseInt(document.getElementById("tms").value)||0));
+  if(m*60+sc<=0)return;tmSet(m*60+sc);
+}
+function tmStart(){
+  tmPrime();
+  if(TM.run){TM.left=Math.max(0,Math.ceil((TM.end-Date.now())/1000));TM.run=false}
+  else{if(TM.left<=0)TM.left=TM.total;if(TM.left<=0)return;TM.end=Date.now()+TM.left*1000;TM.run=true}
+  timerView();tick();
+}
+function tmReset(){TM.run=false;TM.left=TM.total;TM.said=-1;timerView();tick()}
+function tmDone(){
+  TM.ring=true;const o=document.getElementById("tmo");
+  o.innerHTML=`<div class="tmb"><div style="font-size:clamp(32px,7vw,76px);font-weight:800">⏰ 시간 끝!</div><button class="pri">확인</button></div>`;
+  o.onclick=tmStop;o.style.display="flex";
+  clearTimeout(tmRing);tmRing=setTimeout(tmStop,10000);
+  if(mode==="board")board();else if(mode==="timer")timerView();tick();
+}
+function tmStop(){
+  clearTimeout(tmRing);TM.ring=false;TM.left=TM.total;TM.said=-1;document.getElementById("tmo").style.display="none";
+  if(mode==="timer")timerView();else if(mode==="board")board();tick();
+}
+function tmTick(){
+  if(TM.run){const l=Math.ceil((TM.end-Date.now())/1000);if(l<=0){TM.run=false;TM.left=0;dialUpdate();const e0=document.getElementById("dTxt");if(e0)e0.textContent=mmss(0);tmDone();return}TM.left=l;if(l<=10&&TM.said!==l){TM.said=l;tmBeep()}}
+  const e=document.getElementById("dTxt");if(e)e.textContent=mmss(TM.left);
+  const c=document.getElementById("tmchip");if(c)c.textContent="⏱ "+mmss(TM.left);
+  dialUpdate();
+}
+setInterval(tmTick,250);
+
+let lp=0,lpT=0,lpX=0,lpY=0;
+const stopLp=()=>clearTimeout(lpT);
+$.addEventListener("pointerdown",e=>{lp=0;const s=e.target.closest('.s[data-k="phone"]');if(!s)return;lpX=e.clientX;lpY=e.clientY;clearTimeout(lpT);lpT=setTimeout(()=>{lp=1;openAm(s.dataset.n)},600)});
+$.addEventListener("pointermove",e=>{if(Math.abs(e.clientX-lpX)>12||Math.abs(e.clientY-lpY)>12)stopLp()});
+["pointerup","pointercancel","pointerleave"].forEach(t=>$.addEventListener(t,stopLp));
+$.addEventListener("contextmenu",e=>{if(e.target.closest(".s"))e.preventDefault()});
+function openAm(n){
+  const m=document.getElementById("am"),cur=A()[n]||"";
+  m.innerHTML=`<div class="amc"><div class="amt">${esc(n)}</div>${["late","abs","early"].map(t=>`<button class="${cur===t?"pri":""}" data-t="${t}">${AL[t]}</button>`).join("")}<button data-t="">${cur?"정상으로 되돌리기":"정상"}</button><button data-t="close">닫기</button></div>`;
+  m.dataset.n=n;m.style.display="flex";
+}
+document.getElementById("am").addEventListener("click",e=>{
+  const m=e.currentTarget,b=e.target.closest("button");
+  if(!b){if(e.target===m)m.style.display="none";return}
+  const t=b.dataset.t,n=m.dataset.n;
+  if(t!=="close"){if(t)A()[n]=t;else delete A()[n];save(KD,chk);board()}
+  m.style.display="none";
+});
+
+/* ===== 1인1역 =====
+   역할 배치(ROLES)는 1년 내내 고정이에요. 학생 자리표만 매달 ‘자리표 입력’에서 바꿔요.
+   자리표는 1인1역 배치도와 같은 방향(칠판이 위쪽)으로 저장해요. ‘|’ 뒤는 역할 설명이에요. */
+const ROLES=[
+  ["선생님 도우미","선생님 도우미","교실 앞 쓸기","교실 앞 쓸기","우유 당번|-가져오기 -반납하기","우유 당번|-가져오기 -반납하기"],
+  ["칠판 지우기","자석 정리 및 날짜 바꾸기","책상 줄 맞추기","책상 줄 맞추기","우유 알리미","보드게임 정리"],
+  ["학급 도서 정리","학급 게시판 관리","책상 사이 쓸기","책상 사이 쓸기","재활용 분리수거","재활용 분리수거"],
+  ["태블릿 관리|-충전상태 -전원끄기","태블릿 관리|-충전상태 -전원끄기","교실 뒤 쓸기","교실 뒤 쓸기","쓰레기통 주변 청소","쓰레기통 분리수거"],
+  ["분실물 찾아주기","","","","",""]];
+const KSEAT="classcheck:seats";
+const SEAT_DEF={ym:"2026-10",on:"10/21",g:[
+  ["25번","18번","5번","20번","1번","23번"],
+  ["2번","6번","12번","16번","10번","11번"],
+  ["7번","19번","24번","22번","15번","3번"],
+  ["14번","13번","8번","17번","4번","9번"],
+  ["21번","","","","",""]]};
+let roleSel="",rDraft=null,rCell=null;
+const seats=()=>{const s=load(KSEAT,null);return s&&s.g&&s.g.length===5?s:SEAT_DEF};
+const rTitle=r=>r.split("|")[0];
+const rMiss=g=>cfg.names.filter(n=>!g.some((row,r)=>row.some((x,c)=>x===n&&ROLES[r][c])));
+function roleView(){
+  const S=seats(),old=S.ym!==today.slice(0,7);let me=null;
+  if(roleSel)S.g.forEach((row,r)=>row.forEach((n,c)=>{if(n===roleSel&&ROLES[r][c])me=[r,c]}));
+  const role=me?ROLES[me[0]][me[1]]:"";
+  const mates=me?S.g.flatMap((row,r)=>row.map((n,c)=>ROLES[r][c]===role&&n&&n!==roleSel?n:"")).filter(Boolean):[];
+  const cell=(r,c)=>{
+    const ro=ROLES[r][c],n=S.g[r][c]||"";if(!ro)return `<div class="rc nil"></div>`;
+    const cls=me?(me[0]===r&&me[1]===c?" me":" dim"):"",[t,dt]=ro.split("|");
+    return `<div class="rc${cls}" data-n="${esc(n)}"><small>${esc(t)}${dt?"<br>"+esc(dt).replace(/ -/g,"<br>-"):""}</small><b>${n?esc(n):"—"}</b></div>`;
+  };
+  const res=me?`<div class="a">${esc(roleSel)}의 1인1역</div><div class="b">${esc(rTitle(role))}</div>${role.includes("|")?`<div class="c">${esc(role.split("|")[1])}</div>`:""}${mates.length?`<div class="c">함께 하는 친구: ${esc(mates.join(", "))}</div>`:""}`
+    :roleSel?`<div class="a">${esc(roleSel)}</div><div class="c">자리표에 이름이 없어요. 선생님께 알려 주세요.</div>`
+    :`<div class="a">내 이름을 눌러 보세요 👇</div>`;
+  $.innerHTML=`<div class="setup" style="max-width:1500px"><header><h1>🧹 우리 반 1인1역</h1><button onclick="go('roleedit')">✏ 자리표 입력 🔒</button><button class="pri" onclick="go('board')">닫기</button></header>
+  <p class="h" style="${old?"color:var(--no);font-weight:800":""}">${old?"⚠ 이번 달 자리표가 아니에요. 선생님이 ‘✏ 자리표 입력’에서 새로 넣어 주세요. ":""}📅 ${+S.ym.slice(5)}월 자리표 (${esc(S.on)} 입력)</p>
+  <div class="rl"><div class="rg"><div class="rb tc">선생님<br>자리</div><div class="rb bd" style="grid-column:2/7">칠판</div><div class="rb dr">앞문</div>
+  ${ROLES.map((row,r)=>row.map((_,c)=>cell(r,c)).join("")).join("")}
+  <div class="rb hl" style="grid-column:7;grid-row:2/6">복도</div><div class="rb dr" style="grid-column:7;grid-row:6">뒷문</div></div>
+  <div class="rp"><div class="rres">${res}</div><div class="rns">${cfg.names.map(n=>`<button class="${n===roleSel?"on":""}" data-n="${esc(n)}">${esc(n)}</button>`).join("")}</div></div></div></div>`;
+  $.querySelector(".rl").onclick=e=>{const b=e.target.closest("[data-n]");if(!b||!b.dataset.n)return;roleSel=roleSel===b.dataset.n?"":b.dataset.n;roleView()};
+}
+function roleEdit(){
+  if(!rDraft)rDraft=seats().g.map(r=>[...r]);
+  $.innerHTML=`<div class="setup"><header><h1>✏ 이번 달 자리표 입력</h1><button onclick="rDraft=null;rCell=null;go('role')">취소</button><button class="pri" onclick="roleSave()">저장</button></header>
+  <p class="h">① i-Scream 자리바꾸기 자리표의 글자를 복사해 붙여 넣기 <span style="opacity:.8">— 앞줄(1번 줄)부터 한 줄씩 이름을 찾아요</span></p>
+  <textarea id="rt" placeholder="24 홍길동 1 김철수 21 이영희 …"></textarea>
+  <p class="h"><label><input type="checkbox" id="rmir" checked> i-Scream 자리표(칠판이 아래쪽)에서 복사했어요 — 좌우를 뒤집어서 넣기</label></p>
+  <button class="pri" onclick="roleParse()">붙여넣은 자리표 적용</button>
+  <p class="h" style="margin-top:18px">② 칸을 눌러 학생을 고르기 <span style="opacity:.8">— 1인1역 배치도와 같은 방향(칠판이 위)이에요. 이미 앉은 학생을 고르면 서로 자리가 바뀌어요.</span></p>
+  <div id="reg" class="reg"></div><div id="rpk"></div><p id="rmsg" class="h" style="font-weight:800"></p></div>`;
+  drawRE();
+}
+function drawRE(){
+  const g=document.getElementById("reg"),p=document.getElementById("rpk"),m=document.getElementById("rmsg");if(!g)return;
+  g.innerHTML=ROLES.map((row,r)=>row.map((ro,c)=>ro?`<button class="rc${rCell&&rCell[0]===r&&rCell[1]===c?" me":""}" data-r="${r}" data-c="${c}"><small>${esc(rTitle(ro))}</small><b>${rDraft[r][c]?esc(rDraft[r][c]):"—"}</b></button>`:`<div></div>`).join("")).join("");
+  g.onclick=e=>{const b=e.target.closest("button");if(!b)return;rCell=[+b.dataset.r,+b.dataset.c];drawRE()};
+  p.innerHTML=rCell?`<div class="tr"><b>‘${esc(rTitle(ROLES[rCell[0]][rCell[1]]))}’ 자리에 앉을 학생</b><button data-n="">비우기</button><span class="h">파란 이름 = 아직 자리가 없는 학생</span></div><div class="rns" style="grid-template-columns:repeat(5,minmax(0,1fr))">${cfg.names.map(n=>`<button data-n="${esc(n)}" class="${rMiss(rDraft).includes(n)?"on":""}">${esc(n)}</button>`).join("")}</div>`:"";
+  p.onclick=e=>{const b=e.target.closest("button");if(!b||!rCell)return;const n=b.dataset.n,[r,c]=rCell,was=rDraft[r][c];
+    if(n)rDraft.forEach(row=>row.forEach((x,j)=>{if(x===n)row[j]=was}));
+    rDraft[r][c]=n;rCell=null;drawRE()};
+  const miss=rMiss(rDraft);m.style.color=miss.length?"var(--no)":"var(--ok)";
+  m.textContent=miss.length?"⚠ 자리가 없는 학생: "+miss.join(", "):"✅ 모든 학생의 자리가 있어요.";
+}
+function roleParse(){
+  const names=[...cfg.names].sort((a,b)=>b.length-a.length),seen=new Set();
+  const re=new RegExp(names.map(s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|"),"g");
+  const rows=document.getElementById("rt").value.split(/\r?\n/).map(l=>(l.match(re)||[]).filter(n=>!seen.has(n)&&seen.add(n))).filter(a=>a.length);
+  if(!rows.length){const m=document.getElementById("rmsg");m.style.color="var(--no)";m.textContent="붙여넣은 글에서 학생 이름을 찾지 못했어요.";return}
+  const mir=document.getElementById("rmir").checked,g=ROLES.map(()=>Array(6).fill(""));
+  rows.slice(0,5).forEach((a,r)=>(mir?[...a].reverse():a).slice(0,6).forEach((n,c)=>g[r][c]=n));
+  rDraft=g;rCell=null;drawRE();
+  if(rows.length>5)document.getElementById("rmsg").textContent+=" (6줄째부터는 무시했어요)";
+}
+function roleSave(){save(KSEAT,{ym:today.slice(0,7),on:today.slice(5).replace("-","/"),g:rDraft});rDraft=null;rCell=null;roleSel="";go("role")}
+
+/* ===== 화면 키보드 (전자칠판 기본 키보드가 안 뜰 때 쓰는 앱 안 자체 키보드) =====
+   두벌식 한글 조합 / 영어 / 숫자 / 기호. 글칸을 누른 상태에서 키를 누르면 그 칸에 입력돼요. */
+const KB={on:false,lang:"ko",sh:0,sym:false,el:null,cel:null,c:"",v:"",f:"",pos:-1,shown:""};
+let kbPrev="board",kbRep=0,kbRepI=0;
+const KB_CHO=[..."ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ"],KB_JUNG=[..."ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ"];
+const KB_JONG=["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+const KB_VC={"ㅗㅏ":"ㅘ","ㅗㅐ":"ㅙ","ㅗㅣ":"ㅚ","ㅜㅓ":"ㅝ","ㅜㅔ":"ㅞ","ㅜㅣ":"ㅟ","ㅡㅣ":"ㅢ"};
+const KB_FC={"ㄱㅅ":"ㄳ","ㄴㅈ":"ㄵ","ㄴㅎ":"ㄶ","ㄹㄱ":"ㄺ","ㄹㅁ":"ㄻ","ㄹㅂ":"ㄼ","ㄹㅅ":"ㄽ","ㄹㅌ":"ㄾ","ㄹㅍ":"ㄿ","ㄹㅎ":"ㅀ","ㅂㅅ":"ㅄ"};
+const kbSplit=(m,x)=>{for(const k in m)if(m[k]===x)return [k[0],k[1]];return null};
+const KB_KO=["ㅂㅈㄷㄱㅅㅛㅕㅑㅐㅔ","ㅁㄴㅇㄹㅎㅗㅓㅏㅣ","ㅋㅌㅊㅍㅠㅜㅡ"];
+const KB_SHK={"ㅂ":"ㅃ","ㅈ":"ㅉ","ㄷ":"ㄸ","ㄱ":"ㄲ","ㅅ":"ㅆ","ㅐ":"ㅒ","ㅔ":"ㅖ"};
+const KB_EN=["qwertyuiop","asdfghjkl","zxcvbnm"];
+const KB_SY=["`~\\|()[]{}","-_=+/:;'\"","<>%&*#@"];
+const KB_NUM="1234567890",KB_NUMS="!@#$%^&*()";
+
+const kbOK=e=>!!e&&!e.disabled&&!e.readOnly&&(e.tagName==="TEXTAREA"||(e.tagName==="INPUT"&&(e.type==="text"||e.type==="search"||e.type==="number")));
+function kbEl(){
+  const a=document.activeElement;
+  if(kbOK(a)){KB.el=a;return a}
+  const e=KB.el;
+  if(kbOK(e)&&e.isConnected!==false){try{e.focus({preventScroll:true})}catch(x){}return e}
+  return null;
+}
+function kbReset(){KB.c=KB.v=KB.f="";KB.pos=-1;KB.shown=""}
+/* 캐럿을 옮기거나 내용이 바뀌었으면 조합을 끝내요 */
+function kbSync(el){
+  if(KB.cel!==el){kbReset();KB.cel=el}
+  if(KB.pos>=0&&!(el.selectionStart===KB.pos&&el.selectionEnd===KB.pos&&el.value.charAt(KB.pos-1)===KB.shown))kbReset();
+}
+function kbCur(){
+  const{c,v,f}=KB;
+  if(c&&v)return String.fromCharCode(0xAC00+(KB_CHO.indexOf(c)*21+KB_JUNG.indexOf(v))*28+KB_JONG.indexOf(f));
+  return c||v||"";
+}
+const kbFire=el=>el.dispatchEvent(new Event("input",{bubbles:true}));
+function kbPut(el,s,e,t){
+  const ml=el.maxLength;
+  if(ml>=0&&el.value.length-(e-s)+t.length>ml)return false;
+  el.setRangeText(t,s,e,"end");kbFire(el);return true;
+}
+function kbWrite(el,commit){
+  const cur=kbCur(),s=KB.pos>=0?KB.pos-1:el.selectionStart,e=KB.pos>=0?KB.pos:el.selectionEnd,t=commit+cur;
+  if(!kbPut(el,s,e,t)){kbReset();return}
+  KB.pos=s+t.length;KB.shown=cur;
+}
+function kbJamo(j){
+  const el=kbEl();if(!el||el.type==="number")return;
+  kbSync(el);
+  const vw=KB_JUNG.includes(j),c=KB.c,v=KB.v,f=KB.f;let commit="";
+  if(!c&&!v){vw?KB.v=j:KB.c=j}
+  else if(c&&!v){if(vw)KB.v=j;else{commit=c;KB.c=j}}
+  else if(!c&&v){const m=vw&&KB_VC[v+j];if(m)KB.v=m;else{commit=v;KB.v="";vw?KB.v=j:KB.c=j}}
+  else if(!f){
+    if(vw){const m=KB_VC[v+j];if(m)KB.v=m;else{commit=kbCur();KB.c="";KB.v=j}}
+    else if(KB_JONG.includes(j))KB.f=j;
+    else{commit=kbCur();KB.c=j;KB.v=""}
+  }else if(vw){
+    const p=kbSplit(KB_FC,f);
+    if(p){KB.f=p[0];commit=kbCur();KB.c=p[1];KB.v=j;KB.f=""}
+    else{KB.f="";commit=kbCur();KB.c=f;KB.v=j}
+  }else{
+    const m=KB_FC[f+j];
+    if(m)KB.f=m;else{commit=kbCur();KB.c=j;KB.v="";KB.f=""}
+  }
+  kbWrite(el,commit);
+}
+function kbChar(t){
+  const el=kbEl();if(!el)return;
+  if(el.type==="number"){if(/^\d$/.test(t)){el.value=String(el.value)+t;kbFire(el)}return}
+  kbSync(el);kbReset();
+  kbPut(el,el.selectionStart,el.selectionEnd,t);
+}
+function kbBack(){
+  const el=kbEl();if(!el)return;
+  if(el.type==="number"){el.value=String(el.value).slice(0,-1);kbFire(el);return}
+  kbSync(el);
+  if(KB.pos>=0){
+    const st=KB.pos-1;
+    if(KB.f){const p=kbSplit(KB_FC,KB.f);KB.f=p?p[0]:""}
+    else if(KB.v){const p=kbSplit(KB_VC,KB.v);KB.v=p?p[0]:""}
+    else KB.c="";
+    const cur=kbCur();
+    kbPut(el,st,KB.pos,cur);
+    if(cur){KB.pos=st+1;KB.shown=cur}else kbReset();
+    return;
+  }
+  let s=el.selectionStart,e=el.selectionEnd;
+  if(s===e){if(!s)return;s--}
+  kbPut(el,s,e,"");
+}
+function kbEnter(){
+  const el=kbEl();if(!el||el.type==="number")return;
+  kbSync(el);kbReset();
+  if(el.tagName==="TEXTAREA"){kbPut(el,el.selectionStart,el.selectionEnd,"\n");return}
+  ["keydown","keyup"].forEach(t=>el.dispatchEvent(new KeyboardEvent(t,{key:"Enter",code:"Enter",keyCode:13,which:13,bubbles:true})));
+}
+function kbMove(dx){
+  const el=kbEl();if(!el||el.type==="number")return;
+  kbSync(el);kbReset();
+  const p=Math.max(0,Math.min(el.value.length,(dx<0?el.selectionStart:el.selectionEnd)+dx));
+  el.setSelectionRange(p,p);
+}
+function kbPress(b){
+  const t=b.dataset.t,k=b.dataset.k||"";
+  if(t==="bs")return kbBack();
+  if(t==="ent")return kbEnter();
+  if(t==="sp")return kbChar(" ");
+  if(t==="L")return kbMove(-1);
+  if(t==="R")return kbMove(1);
+  if(t==="x")return kbHide();
+  if(t==="sh"){KB.sh=(KB.sh+1)%(KB.lang==="en"&&!KB.sym?3:2);return kbDraw()}
+  if(t==="lang"){KB.lang=KB.lang==="ko"?"en":"ko";KB.sh=0;KB.sym=false;kbReset();return kbDraw()}
+  if(t==="sym"){KB.sym=!KB.sym;return kbDraw()}
+  if(t==="j")kbJamo(k);else if(t==="c")kbChar(k);
+  if(KB.sh===1){KB.sh=0;kbDraw()}
+}
+function kbDraw(){
+  const r=document.getElementById("kbr");if(!r)return;
+  const ko=KB.lang==="ko",up=KB.sh>0;
+  const key=(t,k,l,fx,cls)=>`<button type="button" class="kk${cls?" "+cls:""}" data-t="${t}" data-k="${esc(k)}" style="flex:${fx}">${esc(l)}</button>`;
+  const sp=f=>`<span style="flex:${f}"></span>`;
+  const num=[...KB_NUM].map((x,i)=>{const c=up?KB_NUMS[i]:x;return key("c",c,c,1)}).join("");
+  const row=i=>{
+    if(KB.sym)return[...KB_SY[i]].map(x=>key("c",x,x,1)).join("");
+    if(ko)return[...KB_KO[i]].map(x=>{const m=up&&KB_SHK[x]||x;return key("j",m,m,1)}).join("");
+    return[...KB_EN[i]].map(x=>{const m=up?x.toUpperCase():x;return key("c",m,m,1)}).join("");
+  };
+  r.innerHTML=
+   `<div class="kr">${num}${key("bs","","⌫",1.5,"fn")}</div>`+
+   `<div class="kr">${row(0)}${sp(1.5)}</div>`+
+   `<div class="kr">${sp(.5)}${row(1)}${key("ent","","엔터",2,"fn")}</div>`+
+   `<div class="kr">${key("sh","",KB.sh===2?"⇪":"⇧",1.5,"fn"+(KB.sh?" on":""))}${row(2)}${[",",".","?"].map(x=>key("c",x,x,1)).join("")}</div>`+
+   `<div class="kr">${key("lang","",ko?"한글":"ENG",1.5,"fn")}${key("sym","",KB.sym?"문자":"기호",1.5,"fn"+(KB.sym?" on":""))}${key("L","","◀",1,"fn")}${key("sp","","띄어쓰기",4.5)}${key("R","","▶",1,"fn")}${key("x","","닫기",2,"fn")}</div>`;
+}
+/* 화면 키보드가 켜져 있으면 안드로이드/윈도 기본 키보드는 띄우지 않게 해요 */
+function kbNoNative(t){if(t.dataset.kbim===undefined)t.dataset.kbim=t.getAttribute("inputmode")||"";t.setAttribute("inputmode","none")}
+function kbFit(){const k=document.getElementById("kb");if(KB.on&&k)document.documentElement.style.setProperty("--kbh",k.offsetHeight+"px")}
+function kbShow(){
+  KB.on=true;kbDraw();
+  document.getElementById("kb").style.display="block";document.body.classList.add("kbon");
+  const a=document.activeElement;if(kbOK(a)){KB.el=a;kbNoNative(a)}
+  kbUI();
+  setTimeout(()=>{const t=kbEl();if(t&&t.scrollIntoView)try{t.scrollIntoView({block:"nearest"})}catch(x){}},60);
+}
+function kbHide(){
+  KB.on=false;kbReset();kbStopRep();
+  const k=document.getElementById("kb");if(k)k.style.display="none";
+  document.body.classList.remove("kbon");document.documentElement.style.removeProperty("--kbh");
+  document.querySelectorAll("[data-kbim]").forEach(e=>{const v=e.dataset.kbim;v?e.setAttribute("inputmode",v):e.removeAttribute("inputmode");delete e.dataset.kbim});
+  kbUI();
+}
+function kbToggle(){KB.on?kbHide():kbShow()}
+/* 화면이 바뀔 때마다: 체크판으로 돌아오면 키보드를 닫고, 글쓰는 화면에는 ⌨ 버튼을 보여 줘요 */
+function kbUI(){
+  if(KB.on&&mode==="board"&&kbPrev!=="board")kbHide();
+  kbPrev=mode;
+  const f=document.getElementById("kbfab");if(f)f.style.display=(!KB.on&&mode!=="board")?"block":"none";
+  kbFit();
+}
+function kbStopRep(){clearTimeout(kbRep);clearInterval(kbRepI)}
+(function(){
+  const k=document.getElementById("kb");if(!k)return;
+  k.addEventListener("pointerdown",e=>{
+    const b=e.target.closest(".kk");if(!b)return;
+    e.preventDefault();kbStopRep();kbPress(b);
+    if(b.dataset.t==="bs")kbRep=setTimeout(()=>{kbRepI=setInterval(kbBack,60)},420);
+  });
+  k.addEventListener("mousedown",e=>e.preventDefault());
+  k.addEventListener("contextmenu",e=>e.preventDefault());
+  ["pointerup","pointercancel","pointerleave"].forEach(t=>k.addEventListener(t,kbStopRep));
+})();
+document.addEventListener("focusin",e=>{
+  const t=e.target;if(!kbOK(t))return;
+  KB.el=t;
+  if(!KB.on&&mode!=="board"){kbShow();return}
+  if(KB.on){kbNoNative(t);requestAnimationFrame(()=>{try{t.scrollIntoView({block:"nearest"})}catch(x){}})}
+});
+window.addEventListener("resize",kbFit);
+
+
+/* ===== 자동 업데이트 =====
+   웹 주소로 열었을 때 1분마다 새 버전이 있는지 확인해요.
+   새 버전이면 위에 안내를 띄우고, 체크판 화면에서 타이머·입력이 없을 때 30초 쉬면 새로고침해요.
+   학생 기록(localStorage)은 그대로 남아요. */
+(function(){
+  if(!/^https?:$/.test(location.protocol))return;
+  const cur=(document.querySelector('meta[name="build"]')||{}).content||"";
+  let last=Date.now(),ready=false;
+  ["pointerdown","keydown","touchstart"].forEach(e=>document.addEventListener(e,()=>{last=Date.now()},{passive:true,capture:true}));
+  const bar=()=>{if(document.getElementById("updbar"))return;const b=document.createElement("div");b.id="updbar";
+    b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 6px);transform:translateX(-50%);z-index:99999;background:var(--pri);color:#fff;font-weight:800;padding:8px 14px;border-radius:99px;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;font-size:clamp(12px,1.6vw,18px)";
+    b.textContent="🔄 새 버전이 있어요 — 눌러서 바로 적용";b.onclick=()=>location.reload();document.body.appendChild(b)};
+  const safe=()=>{const a=document.activeElement;
+    return mode==="board"&&!TM.run&&!TM.ring&&!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))&&Date.now()-last>30000};
+  async function check(){try{
+    const r=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"});if(!r.ok)return;
+    const m=(await r.text()).match(/<meta name="build" content="([^"]+)"/);
+    if(m&&cur&&m[1]!==cur){ready=true;bar()}}catch(e){}}
+  setInterval(check,60000);setTimeout(check,5000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)check()});
+  setInterval(()=>{if(ready&&safe())location.reload()},5000);
+})();
+
+render();tick();
+</script>
+</body>
+</html>
