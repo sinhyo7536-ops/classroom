@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-09-10">
+<meta name="build" content="2026-11-10-1">
 <title>우리 반 체크판</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
@@ -153,6 +153,9 @@ button.warnon{background:#f2b705!important;color:#22263a!important}
 .pinm{color:var(--no);font-weight:800;min-height:1.3em;font-size:15px}
 .pink{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
 .pink button{padding:14px 0;font-size:24px;border-radius:14px}.pink .pinx{font-size:17px}
+#pcl{display:none;position:fixed;inset:0;z-index:10001;background:rgba(20,24,40,.82);color:#fff;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;touch-action:none}
+#pcl .pt{font-size:clamp(34px,7vw,90px);font-weight:800}#pcl .ps{font-size:clamp(20px,3.4vw,44px);font-weight:700;opacity:.9}
+#pcl button{position:absolute;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.15);color:#fff;font-size:14px}
 #brk{display:none;position:fixed;inset:0;z-index:45;pointer-events:none;align-items:center;justify-content:center}
 .brkc{display:flex;flex-direction:column;align-items:center;background:color-mix(in srgb,var(--card) 45%,transparent);border:4px solid color-mix(in srgb,var(--pri) 55%,transparent);border-radius:28px;padding:clamp(10px,2vw,24px) clamp(18px,3vw,44px)}
 .brkt{display:flex;flex-direction:column;align-items:center;justify-content:center}
@@ -213,7 +216,7 @@ body.kbon #app{padding-bottom:calc(6px + var(--kbh,0px))}
 <div id="sp"></div>
 <div id="tmo"></div>
 <div id="pin"></div>
-<div id="brk"></div>
+<div id="pcl"></div><div id="brk"></div>
 <div id="kb"><div class="kbw"><div id="kbr"></div></div></div>
 <button id="kbfab" type="button" onmousedown="event.preventDefault()" onclick="kbShow()">⌨ 키보드</button>
 <script>
@@ -372,7 +375,7 @@ function finish(){
   if(SYNC_URL){localStorage.removeItem("classcheck:synct");location.reload();return} /* 명단이 바뀌면 연동 기록을 새 명단으로 다시 받아요 */ mode="board"; render(); tick();
 }
 const tm=t=>{const [h,m]=String(t).split(":");return +h*60+ +m};
-function tick(){autoCheck();const ck=document.getElementById("clk");if(ck)ck.textContent=clkTxt();const n=new Date(),m=n.getHours()*60+n.getMinutes();const can=!(mode!=="board"||TM.run||TM.ring)&&sched.on&&sched.rows.some(r=>r[3]&&m>=tm(r[1])&&m<tm(r[2])&&!noCls(r)),off=can&&Date.now()>wake;document.getElementById("off").style.display=off?"block":"none";document.getElementById("slp").style.display=can&&!off?"block":"none";if(!off)hideOm();brkTick()}
+function tick(){autoCheck();const ck=document.getElementById("clk");if(ck)ck.textContent=clkTxt();const n=new Date(),m=n.getHours()*60+n.getMinutes();const can=!(mode!=="board"||TM.run||TM.ring)&&sched.on&&sched.rows.some(r=>r[3]&&m>=tm(r[1])&&m<tm(r[2])&&!noCls(r)),off=can&&Date.now()>wake;document.getElementById("off").style.display=off?"block":"none";document.getElementById("slp").style.display=can&&!off?"block":"none";if(!off)hideOm();brkTick();pclTick()}
 function schedView(){
   $.innerHTML=`<div class="setup"><header><h1>⏰ 화면 꺼짐 시간표</h1><button class="pri" onclick="doneSched()">완료</button></header>
   <p class="h"><label><input type="checkbox" ${sched.on?"checked":""} onchange="sched.on=this.checked;save(KS,sched)"> 시간표에 따라 화면 자동으로 끄기</label></p>
@@ -614,6 +617,38 @@ function noCls(r){
   const m=String(r[0]).match(/(\d+)\s*교시/);if(!m)return false;
   const dy=tt[d.getDay()-1];return !!dy&&!(dy[+m[1]-1]||"").trim();
 }
+/* ===== 수업 준비 잠금 =====
+   쉬는시간 타이머가 끝나는 때(다음 수업 2분 전)부터 수업 시작까지: 체크판 첫 화면으로 보내고 모든 터치를 막아요.
+   수업이 시작되면 저절로 풀려요. 선생님은 오른쪽 아래 버튼 + 비밀번호로 바로 풀 수 있어요. */
+let pclFree=0;
+function preClass(){
+  if(!school())return null;
+  const n=new Date(),now=n.getHours()*60+n.getMinutes()+n.getSeconds()/60,rs=sched.rows;
+  for(let i=0;i<rs.length-1;i++){
+    const r=rs[i],nx=rs[i+1];
+    if(isCls(r)||!isCls(nx)||/아침/.test(r[0]))continue;
+    const st=tm(nx[1]);if(now<st-2||now>=st)continue;
+    const per=perOf(nx,i+1),dy=tt[d.getDay()-1]||[],sub=(dy[per-1]||"").trim();
+    if(!sub)continue;
+    return {per,sub,end:new Date(n.getFullYear(),n.getMonth(),n.getDate(),0,st,0,0).getTime()};
+  }
+  return null;
+}
+function pclTick(){
+  const o=document.getElementById("pcl");if(!o)return;
+  const p=preClass();
+  if(!p||Date.now()<pclFree){if(o.style.display!=="none"){o.style.display="none";o.innerHTML=""}return}
+  if(mode!=="board"){["am","sp","kb"].forEach(i=>{const e=document.getElementById(i);if(e)e.style.display="none"});
+    const dd=document.getElementById("dd");if(dd)dd.style.display="none";if(document.activeElement)document.activeElement.blur();
+    warnMode=false;mode="board";render()}
+  else{const dd=document.getElementById("dd");if(dd)dd.style.display="none"}
+  if(o.style.display!=="flex"){
+    o.innerHTML=`<div class="pt">🔒 수업 준비 시간</div><div class="ps">곧 ${p.per}교시 ${esc(p.sub)} 수업이 시작돼요</div><button>선생님 잠금 풀기</button>`;
+    o.querySelector("button").onclick=e=>{e.stopPropagation();askPin(()=>{pclFree=p.end;pclTick()})};
+    o.style.display="flex";
+  }
+}
+["pointerdown","click","keydown","touchstart"].forEach(t=>document.getElementById("pcl").addEventListener(t,e=>{if(!e.target.closest("button")){e.preventDefault();e.stopPropagation()}},{passive:false}));
 function brkTick(){
   const o=document.getElementById("brk");if(!o)return;
   const b=(mode==="board"&&!TM.ring&&document.getElementById("off").style.display!=="block")?curBreak():null;
