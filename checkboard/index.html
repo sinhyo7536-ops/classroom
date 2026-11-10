@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-4">
+<meta name="build" content="2026-11-10-5">
 <title>우리 반 체크판</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
@@ -125,6 +125,8 @@ p.h{color:var(--sub);margin:6px 0}
 #lotto .tray{display:flex;gap:14px;min-height:clamp(56px,10vmin,90px)}
 .lball{width:clamp(56px,10vmin,90px);height:clamp(56px,10vmin,90px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:clamp(24px,4.6vmin,42px);font-weight:900;color:#222;box-shadow:inset -6px -8px 0 rgba(0,0,0,.18),0 4px 12px rgba(0,0,0,.4);animation:lpop .5s ease-out}
 @keyframes lpop{0%{transform:scale(.2) translateY(-60px)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.prank{font-size:clamp(20px,3vw,34px);font-weight:800;margin:10px 0;line-height:1.5}.prank b{color:#c2410c}
+.pres{margin-top:6px;font-size:clamp(16px,2vw,22px)}.pres.big{font-size:clamp(20px,3vw,34px);font-weight:700}
 .pwin{display:inline-block;background:var(--chip);border-radius:99px;padding:2px 10px;margin:2px;font-weight:800}.pwin.paid{opacity:.55}
 .nmv{font-weight:800;min-width:0}
 .fm .who .anon{display:inline-flex!important;align-items:center;gap:4px;font-weight:700;margin-left:auto!important;cursor:pointer}
@@ -1193,7 +1195,8 @@ function pptView(){
       <p class="h"><b>포인트 기록</b></p>${mine.length?mine.map(x=>`<div class="li"><b>${pDay(x.t)}</b><span class="tx">${esc(x.why||(x.d>0?"칭찬포인트":"사용"))}</span><b style="color:${x.d>0?"var(--ok)":"var(--no)"}">${x.d>0?"+":""}${x.d}</b></div>`).join(""):`<p class="h">기록이 없어요.</p>`}`:""}`;
   }else if(pTab==="tk"){
     const nums=[...Array(S.max)].map((_,i)=>i+1);
-    body=`<div class="fm">${pWho()}</div>
+    body=`<div class="prank">🥇 3개 맞추면 <b>1등</b> · 🥈 2개 맞추면 <b>2등</b> · 🥉 1개 맞추면 <b>3등</b></div>
+    <div class="fm">${pWho()}</div>
     <div class="pgrid">${nums.map(v=>`<button class="${pPick.includes(v)?"on":""}" data-v="${v}">${v}</button>`).join("")}</div>
     <div class="tr"><span class="h" style="flex:1">고른 숫자: ${pPick.length?pPick.map(v=>`<span class="pball">${v}</span>`).join(""):"없음"}</span><button onclick="pPick=[];const r=[...Array(pset().max)].map((_,i)=>i+1);while(pPick.length<3){const v=r.splice(Math.floor(Math.random()*r.length),1)[0];pPick.push(v)}pPick.sort((a,b)=>a-b);pptView()">🎲 자동</button><button class="pri" onclick="pBuyTk()">티켓 사기 (${S.price}점)</button></div>`;
   }else if(pTab==="shop"){
@@ -1233,7 +1236,8 @@ function pBuy(i){
 function pResHTML(r,big){
   const w=r.win||[];
   return `<div class="li" style="display:block${big?";border-color:var(--pri)":""}"><b>${r.round}회 · ${esc(r.date)}</b> 당첨 번호 ${r.nums.map(v=>`<span class="pball on">${v}</span>`).join("")} <span class="h">(티켓 ${r.cnt}장)</span>
-  ${[1,2,3].map(k=>{const l=w.filter(x=>x.rank===k);return `<div style="margin-top:6px"><b>${k}등</b> ${peps(PRIZE[k])} ${l.length?l.map(x=>`<span class="pwin${x.paid?" paid":""}">${esc(pName(x.no))}${x.paid?" ✓":""}</span>`).join(" "):'<span class="h">없음</span>'}</div>`}).join("")}</div>`;
+  ${[1,2,3].map(k=>{const c={};w.filter(x=>x.rank===k).forEach(x=>{c[x.no]=(c[x.no]||0)+1});const l=Object.keys(c).map(no=>esc(pName(+no))+(c[no]>1?" ×"+c[no]:""));
+    return `<div class="pres${big?" big":""}"><b>${k}등:</b> ${l.length?l.join(", "):'<span class="h">없음</span>'}</div>`}).join("")}</div>`;
 }
 /* 로또 추첨기: 통 안에서 공이 튀어 다니다가 하나씩 밖으로 나와요 */
 const lColor=v=>v<=10?"#fbc400":v<=20?"#69c8f2":v<=30?"#ff7272":v<=40?"#aaaaaa":"#b0d840";
@@ -1285,7 +1289,7 @@ function pAdmHTML(){
   <div class="tr">${[5,10,20,30,50,100].map(v=>`<button class="pri" onclick="pGiveDo(${v})">+${v}</button>`).join("")}<input id="pamt" class="nob" inputmode="numeric" placeholder="직접"><button onclick="pGiveDo(+document.getElementById('pamt').value||0)">주기</button><button onclick="pGiveDo(-(+document.getElementById('pamt').value||0))">빼기</button><button onclick="pGive=[];pptView()">선택 해제</button></div>
   <p class="h" style="margin-top:18px"><b>② 건네줄 것</b></p>
   ${pend.length||unpaid.length?"":`<p class="h">없어요.</p>`}
-  ${unpaid.map(x=>`<div class="li">${peps(PRIZE[x.rank])}<span class="tx">${x.round}회 ${x.rank}등 — ${esc(pName(x.no))}</span><button onclick="pPaid(${x.ri},${x.wi})">지급 ✓</button></div>`).join("")}
+  ${unpaid.map(x=>`<div class="li"><span class="tx">${x.round}회 ${x.rank}등 — ${esc(pName(x.no))} (빼빼로 ${PRIZE[x.rank]}개)</span><button onclick="pPaid(${x.ri},${x.wi})">지급 ✓</button></div>`).join("")}
   ${pend.map(x=>`<div class="li">${snkImg(x.n)}<span class="tx">${esc(x.n)} — ${esc(pName(x.no))} <span class="h">${pDay(x.t)}</span></span><button onclick="pDone(${x.t})">지급 ✓</button></div>`).join("")}
   <p class="h" style="margin-top:18px"><b>③ 과자 가게</b></p>
   ${Sh.items.map((x,i)=>`<div class="li">${snkImg(x.n)}<span class="tx">${esc(x.n)}</span><b>${x.p}점</b><button onclick="ask(this,()=>{const s=pshop();s.items.splice(${i},1);save(KPS,s);pptView()})">✕</button></div>`).join("")}
