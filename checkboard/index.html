@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-3">
+<meta name="build" content="2026-11-10-4">
 <title>우리 반 체크판</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
@@ -118,6 +118,13 @@ p.h{color:var(--sub);margin:6px 0}
 .pball{display:inline-flex;align-items:center;justify-content:center;min-width:1.9em;height:1.9em;border-radius:99px;background:var(--chip);font-weight:800;margin:0 3px}.pball.on{background:#c2410c;color:#fff}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin:10px 0}.pgrid button{font-size:24px;padding:12px 0;border:2px solid var(--line);background:var(--card)}.pgrid button.on{background:#c2410c;color:#fff;border-color:#c2410c}
 .pstu{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px;margin:8px 0}.pstu button{border:2px solid var(--line);background:var(--card);font-size:15px;padding:6px 4px;line-height:1.3}.pstu button small{color:var(--sub)}.pstu button.on{background:var(--pri);color:#fff;border-color:var(--pri)}.pstu button.on small{color:#fff}
+.pep{height:1.5em;width:auto;vertical-align:middle}.peps{display:inline-flex;gap:1px;vertical-align:middle}.peps .pep{height:1.9em}
+.snk{height:2.2em;width:auto;flex:none}.pshop{font-size:clamp(18px,2.4vw,24px)}.pshop .snk{height:2.6em}
+#lotto{display:none;position:fixed;inset:0;z-index:70;background:rgba(10,12,24,.86);align-items:center;justify-content:center;flex-direction:column;gap:14px;color:#fff}
+#lotto .lt{font-size:clamp(24px,4vw,44px);font-weight:800}#lotto canvas{width:min(70vmin,460px);height:min(70vmin,460px)}
+#lotto .tray{display:flex;gap:14px;min-height:clamp(56px,10vmin,90px)}
+.lball{width:clamp(56px,10vmin,90px);height:clamp(56px,10vmin,90px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:clamp(24px,4.6vmin,42px);font-weight:900;color:#222;box-shadow:inset -6px -8px 0 rgba(0,0,0,.18),0 4px 12px rgba(0,0,0,.4);animation:lpop .5s ease-out}
+@keyframes lpop{0%{transform:scale(.2) translateY(-60px)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
 .pwin{display:inline-block;background:var(--chip);border-radius:99px;padding:2px 10px;margin:2px;font-weight:800}.pwin.paid{opacity:.55}
 .nmv{font-weight:800;min-width:0}
 .fm .who .anon{display:inline-flex!important;align-items:center;gap:4px;font-weight:700;margin-left:auto!important;cursor:pointer}
@@ -712,11 +719,11 @@ function ask(b,fn){
 }
 
 /* ===== 메뉴 (순서 편집 가능) ===== */
-const MENU={ppt:"🍫 빼빼또",sched:"⏰ 시간표",song:"🎵 신청곡",game:"🎲 놀이 추첨함",timer:"⏱ 타이머",role:"🧹 1인1역",sugg:"📮 건의사항",upd:"📢 업데이트 내용",setup:"⚙ 명단"};
+const MENU={ppt:"빼빼또",sched:"⏰ 시간표",song:"🎵 신청곡",game:"🎲 놀이 추첨함",timer:"⏱ 타이머",role:"🧹 1인1역",sugg:"📮 건의사항",upd:"📢 업데이트 내용",setup:"⚙ 명단"};
 const KMO="classcheck:menuorder";
 function mOrder(){const o=load(KMO,[]).filter(k=>MENU[k]);Object.keys(MENU).forEach(k=>{if(!o.includes(k))o.push(k)});return o}
 function mBadge(k){return k==="sugg"&&sNew()?` <span class="bdg">${sNew()}</span>`:k==="upd"&&updNew()?` <span class="bdg">NEW</span>`:""}
-function menuHTML(){const L=k=>LOCKED.includes(k)?" 🔒":"";return mOrder().map(k=>`<button onclick="go('${k}')">${MENU[k]}${L(k)}${mBadge(k)}</button>`).join("")+`<button style="opacity:.75;border-top:1px solid var(--line)" onclick="go('menued')">✏ 메뉴 순서 바꾸기${L("menued")}</button>`}
+function menuHTML(){const L=k=>LOCKED.includes(k)?" 🔒":"";return mOrder().map(k=>`<button onclick="go('${k}')">${k==="ppt"?PEP+" ":""}${MENU[k]}${L(k)}${mBadge(k)}</button>`).join("")+`<button style="opacity:.75;border-top:1px solid var(--line)" onclick="go('menued')">✏ 메뉴 순서 바꾸기${L("menued")}</button>`}
 function menuEdit(){
   const o=mOrder();
   $.innerHTML=`<div class="setup"><header><h1>✏ 메뉴 순서 바꾸기</h1><button class="pri" onclick="go('board')">완료</button></header>
@@ -1153,8 +1160,14 @@ window.addEventListener("resize",kbFit);
    학생은 이름 대신 번호로 저장해요 (기기 연동에도 이름이 올라가지 않아요). */
 const KPP="classcheck:pp",KPT="classcheck:ptk",KPR="classcheck:pres",KPS="classcheck:pshop",KPC="classcheck:pset";
 const PRIZE={1:3,2:2,3:1};
+/* 그림: 빼빼로 · 사탕 · 과자 (SVG) */
+const PEP=`<svg class="pep" viewBox="0 0 16 64" aria-hidden="true"><rect x="5" y="40" width="6" height="22" rx="3" fill="#e9c27a"/><rect x="5" y="40" width="6" height="22" rx="3" fill="none" stroke="#c9963f" stroke-width="1"/><rect x="3.5" y="2" width="9" height="42" rx="4.5" fill="#5a2e1a"/><rect x="5.3" y="6" width="2" height="30" rx="1" fill="#8a4f33" opacity=".8"/><path d="M3.6 40 q2.2 3 4.4 0 q2.2 3 4.4 0" fill="#5a2e1a"/></svg>`;
+const peps=n=>`<span class="peps">${PEP.repeat(n)}</span>`;
+const CANDY=`<svg class="snk" viewBox="0 0 64 40" aria-hidden="true"><path d="M18 20 L3 8 L6 20 L3 32 Z" fill="#ff8fb1"/><path d="M46 20 L61 8 L58 20 L61 32 Z" fill="#ff8fb1"/><circle cx="32" cy="20" r="15" fill="#ff4d7e"/><path d="M20 12 q12 8 24 0 M18 20 q14 9 28 0 M20 28 q12 7 24 0" stroke="#fff" stroke-width="3" fill="none" opacity=".85"/><circle cx="26" cy="13" r="3" fill="#fff" opacity=".6"/></svg>`;
+const SNACK=`<svg class="snk" viewBox="0 0 48 60" aria-hidden="true"><path d="M6 6 h36 l-3 4 l3 4 v32 l3 4 l-3 4 h-36 l3 -4 l-3 -4 v-32 l-3 -4 z" fill="#ffb020"/><path d="M6 6 h36 l-3 4 l3 4 H6 l-3 -4 z M6 46 h36 l3 4 l-3 4 H6 l-3 -4 z" fill="#e2580b"/><ellipse cx="24" cy="30" rx="13" ry="10" fill="#fff4d6"/><ellipse cx="20" cy="29" rx="5" ry="4" fill="#f2c14e"/><ellipse cx="29" cy="32" rx="5" ry="4" fill="#e9a93a"/></svg>`;
+const snkImg=n=>/사탕|캔디|롤리|츄파|막대사탕|알사탕/.test(n)?CANDY:SNACK;
 let pTab="me",pNo="",pPick=[],pMsg="",pMsgOk=true,pGive=[];
-const pset=()=>Object.assign({price:100,max:15},load(KPC,{}));
+const pset=()=>Object.assign({price:100,max:25},load(KPC,{}));
 const ppData=()=>Object.assign({pts:{},log:[]},load(KPP,{}));
 const ptk=()=>Object.assign({round:1,list:[]},load(KPT,{}));
 const pshop=()=>Object.assign({items:[],orders:[]},load(KPS,{}));
@@ -1170,36 +1183,32 @@ function pWho(){
 function pBindWho(){const i=document.getElementById("p_no");if(!i)return;i.oninput=()=>{pNo=i.value.trim();const s=i.selectionStart;pptView();const j=document.getElementById("p_no");if(j){j.focus();try{j.setSelectionRange(s,s)}catch(e){}}}}
 function pptView(){
   const S=pset(),T=ptk(),tabs=[["me","💰 내 포인트"],["tk","🎟 티켓 사기"],["shop","🍬 과자 가게"],["draw","🎰 추첨"],["adm","🔒 선생님"]];
-  const dayOk=d.getDay()===2||d.getDay()===5;
-  let body="";
+    let body="";
   if(pTab==="me"){
     const no=+pNo,n=pNo&&noName(pNo),P=ppData();
     const mine=n?P.log.filter(x=>x.no===no).slice(0,30):[],tks=n?T.list.filter(x=>x.no===no):[];
-    body=`<div class="rule">🌟 좋은 모습을 보이면 선생님이 언제든 <b>칭찬포인트</b>를 줘요. 언제, 무엇으로 받을지는 비밀!<br>🎟 <b>${S.price}점</b>으로 빼빼또 티켓을 사서 <b>화·금 점심시간</b> 추첨에 도전해요.</div>
-    <div class="fm">${pWho()}</div>
+    body=`<div class="fm">${pWho()}</div>
     ${n?`<div class="pbig">💰 ${ptsOf(no)}점</div>
-      <p class="h"><b>이번 회차 내 티켓 (${tks.length}장)</b></p>${tks.length?tks.map(x=>`<div class="li"><span class="tx">${x.nums.map(v=>`<span class="pball">${v}</span>`).join("")}</span></div>`).join(""):`<p class="h">아직 티켓이 없어요.</p>`}
+      <p class="h"><b>🎟 이번 회차 내 티켓 (${tks.length}장)</b></p>${tks.length?tks.map(x=>`<div class="li"><span class="tx">${x.nums.map(v=>`<span class="pball">${v}</span>`).join("")}</span></div>`).join(""):`<p class="h">아직 티켓이 없어요.</p>`}
       <p class="h"><b>포인트 기록</b></p>${mine.length?mine.map(x=>`<div class="li"><b>${pDay(x.t)}</b><span class="tx">${esc(x.why||(x.d>0?"칭찬포인트":"사용"))}</span><b style="color:${x.d>0?"var(--ok)":"var(--no)"}">${x.d>0?"+":""}${x.d}</b></div>`).join(""):`<p class="h">기록이 없어요.</p>`}`:""}`;
   }else if(pTab==="tk"){
     const nums=[...Array(S.max)].map((_,i)=>i+1);
-    body=`<div class="rule">🎟 티켓 1장 = <b>${S.price}점</b> · 1~${S.max} 중 숫자 <b>3개</b>를 골라요.<br>🍫 3개 맞으면 1등(빼빼로 3개) · 2개 2등(2개) · 1개 3등(1개)</div>
-    <div class="fm">${pWho()}</div>
+    body=`<div class="fm">${pWho()}</div>
     <div class="pgrid">${nums.map(v=>`<button class="${pPick.includes(v)?"on":""}" data-v="${v}">${v}</button>`).join("")}</div>
     <div class="tr"><span class="h" style="flex:1">고른 숫자: ${pPick.length?pPick.map(v=>`<span class="pball">${v}</span>`).join(""):"없음"}</span><button onclick="pPick=[];const r=[...Array(pset().max)].map((_,i)=>i+1);while(pPick.length<3){const v=r.splice(Math.floor(Math.random()*r.length),1)[0];pPick.push(v)}pPick.sort((a,b)=>a-b);pptView()">🎲 자동</button><button class="pri" onclick="pBuyTk()">티켓 사기 (${S.price}점)</button></div>`;
   }else if(pTab==="shop"){
     const it=pshop().items;
-    body=`<div class="fm">${pWho()}</div>${it.length?it.map((x,i)=>`<div class="li"><span class="tx">🍬 ${esc(x.n)}</span><b>${x.p}점</b><button class="pri" onclick="ask(this,()=>pBuy(${i}))">사기</button></div>`).join(""):`<p class="h">아직 등록된 과자가 없어요. 선생님이 곧 채워 주실 거예요!</p>`}`;
+    body=`<div class="fm">${pWho()}</div>${it.length?it.map((x,i)=>`<div class="li pshop">${snkImg(x.n)}<span class="tx">${esc(x.n)}</span><b>${x.p}점</b><button class="pri" onclick="ask(this,()=>pBuy(${i}))">사기</button></div>`).join(""):`<p class="h">아직 등록된 과자가 없어요. 선생님이 곧 채워 주실 거예요!</p>`}`;
   }else if(pTab==="draw"){
     const R=load(KPR,[]),last=R[0];
-    body=`<div class="rule">🎰 추첨은 <b>화요일·금요일 점심시간</b>에 해요. ${dayOk?"<b>오늘은 추첨하는 날!</b>":""}<br>이번 회차(${T.round}회) 티켓: <b>${T.list.length}장</b></div>
-    <div class="tr"><button class="pri" style="font-size:22px;padding:14px 22px" ${T.list.length?"":"disabled"} onclick="askPin(()=>{admUntil=Date.now()+300000;pDraw()})">🍫 빼빼또 추첨하기 🔒</button></div>
+    body=`<div class="tr"><button class="pri" style="font-size:22px;padding:14px 22px" ${T.list.length?"":"disabled"} onclick="askPin(()=>{admUntil=Date.now()+300000;pDraw()})">🎰 ${T.round}회 추첨하기 (티켓 ${T.list.length}장) 🔒</button></div>
     ${last?pResHTML(last,true):`<p class="h">아직 추첨 기록이 없어요.</p>`}
     ${R.slice(1,8).map(r=>pResHTML(r,false)).join("")}`;
   }else if(pTab==="adm"){
     if(!admOk())body=`<p class="h">선생님만 쓸 수 있어요.</p><button class="pri" onclick="askPin(()=>{admUntil=Date.now()+600000;pptView()})">🔑 비밀번호 넣기</button>`;
     else body=pAdmHTML();
   }
-  $.innerHTML=`<div class="setup"><header><h1>🍫 빼빼또</h1><button class="pri" onclick="pPick=[];pGive=[];pTab='me';pNo='';admUntil=0;go('board')">닫기</button></header>
+  $.innerHTML=`<div class="setup"><header><h1>${PEP} 빼빼또 ${PEP}</h1><button class="pri" onclick="pPick=[];pGive=[];pTab='me';pNo='';admUntil=0;go('board')">닫기</button></header>
   <div class="tabs">${tabs.map(([k,t])=>`<button class="${pTab===k?"on":""}" onclick="pTab='${k}';pMsg='';pptView()">${t}</button>`).join("")}</div>
   ${pMsg?`<p class="h" style="font-weight:800;color:${pMsgOk?"var(--ok)":"var(--no)"}">${esc(pMsg)}</p>`:""}${body}</div>`;
   pBindWho();
@@ -1224,32 +1233,62 @@ function pBuy(i){
 function pResHTML(r,big){
   const w=r.win||[];
   return `<div class="li" style="display:block${big?";border-color:var(--pri)":""}"><b>${r.round}회 · ${esc(r.date)}</b> 당첨 번호 ${r.nums.map(v=>`<span class="pball on">${v}</span>`).join("")} <span class="h">(티켓 ${r.cnt}장)</span>
-  ${[1,2,3].map(k=>{const l=w.filter(x=>x.rank===k);return `<div style="margin-top:6px"><b>${k}등 ${"🍫".repeat(PRIZE[k])}</b> ${l.length?l.map(x=>`<span class="pwin${x.paid?" paid":""}">${esc(pName(x.no))}${x.paid?" ✓":""}</span>`).join(" "):'<span class="h">없음</span>'}</div>`}).join("")}</div>`;
+  ${[1,2,3].map(k=>{const l=w.filter(x=>x.rank===k);return `<div style="margin-top:6px"><b>${k}등</b> ${peps(PRIZE[k])} ${l.length?l.map(x=>`<span class="pwin${x.paid?" paid":""}">${esc(pName(x.no))}${x.paid?" ✓":""}</span>`).join(" "):'<span class="h">없음</span>'}</div>`}).join("")}</div>`;
+}
+/* 로또 추첨기: 통 안에서 공이 튀어 다니다가 하나씩 밖으로 나와요 */
+const lColor=v=>v<=10?"#fbc400":v<=20?"#69c8f2":v<=30?"#ff7272":v<=40?"#aaaaaa":"#b0d840";
+function lottoUI(max,picks,done){
+  let o=document.getElementById("lotto");if(!o){o=document.createElement("div");o.id="lotto";document.body.appendChild(o)}
+  o.innerHTML=`<div class="lt">🎰 빼빼또 추첨!</div><canvas width="460" height="460"></canvas><div class="tray"></div>`;o.style.display="flex";
+  const cv=o.querySelector("canvas"),g=cv.getContext("2d"),tray=o.querySelector(".tray"),C=230,RD=200,BR=19;
+  const balls=[...Array(max)].map((_,i)=>{const a=Math.random()*6.28,r=Math.random()*(RD-BR-10);return {v:i+1,x:C+Math.cos(a)*r,y:C+40+Math.sin(a)*r*.5,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,out:0}});
+  let k=0,t0=performance.now(),nextAt=2200,fly=null,stop=false;
+  function step(now){
+    if(stop)return;const el=now-t0;
+    balls.forEach(b=>{if(b.out)return;b.vy+=.35;
+      if(Math.random()<.18){b.vx+=(Math.random()-.5)*5;b.vy-=Math.random()*5.5}
+      b.vx*=.995;b.vy*=.995;b.x+=b.vx;b.y+=b.vy;
+      const dx=b.x-C,dy=b.y-C,dd=Math.hypot(dx,dy),lim=RD-BR;
+      if(dd>lim){const nx=dx/dd,ny=dy/dd,dot=b.vx*nx+b.vy*ny;b.vx-=2*dot*nx;b.vy-=2*dot*ny;b.vx*=.9;b.vy*=.9;b.x=C+nx*lim;b.y=C+ny*lim}});
+    if(!fly&&k<picks.length&&el>nextAt){const b=balls.find(x=>x.v===picks[k]);b.out=1;fly={b,s:now}}
+    if(fly){fly.b.x+=(C-fly.b.x)*.2;fly.b.y-=8; /* 위쪽 출구로 올라가요 */
+      if(fly.b.y<-BR){const e=document.createElement("div");e.className="lball";e.style.background=lColor(fly.b.v);e.textContent=fly.b.v;tray.appendChild(e);fly=null;k++;nextAt=el+2000;
+        if(k>=picks.length){setTimeout(()=>{stop=true;o.style.display="none";done()},2200)}}}
+    g.clearRect(0,0,460,460);
+    g.fillStyle="rgba(255,255,255,.08)";g.strokeStyle="rgba(255,255,255,.7)";g.lineWidth=5;g.beginPath();g.arc(C,C,RD,0,6.283);g.fill();g.stroke();
+    g.fillStyle="rgba(255,255,255,.35)";g.fillRect(C-26,0,52,C-RD+4);
+    balls.forEach(b=>{if(b.out&&(!fly||fly.b!==b))return;g.beginPath();g.arc(b.x,b.y,BR,0,6.283);g.fillStyle=lColor(b.v);g.fill();
+      g.fillStyle="rgba(255,255,255,.5)";g.beginPath();g.arc(b.x-6,b.y-7,5,0,6.283);g.fill();
+      g.fillStyle="#222";g.font="bold 17px sans-serif";g.textAlign="center";g.textBaseline="middle";g.fillText(b.v,b.x,b.y+1)});
+    g.strokeStyle="rgba(255,255,255,.25)";g.lineWidth=2;g.beginPath();g.arc(C,C,RD-12,3.6,4.3);g.stroke();
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
 }
 function pDraw(){
   const S=pset(),T=ptk();if(!T.list.length)return;
   const pool=[...Array(S.max)].map((_,i)=>i+1),r=[...pool],nums=[];
   while(nums.length<3)nums.push(r.splice(Math.floor(Math.random()*r.length),1)[0]);
-  spinUI("🍫 빼빼또 추첨!",pool,nums,18,()=>{
+  lottoUI(S.max,nums,()=>{
     const win=[];T.list.forEach(x=>{const m=x.nums.filter(v=>nums.includes(v)).length;if(m)win.push({no:x.no,nums:x.nums,rank:4-m,paid:0})});
     win.sort((a,b)=>a.rank-b.rank);
     const R=load(KPR,[]);R.unshift({round:T.round,date:today,nums:[...nums].sort((a,b)=>a-b),cnt:T.list.length,win,tickets:T.list});save(KPR,R.slice(0,40));
-    save(KPT,{round:T.round+1,list:[]});pTab="draw";pSay(`${T.round}회 추첨 완료! 당첨된 학생은 선생님께 빼빼로를 받으세요 🍫`,true);pptView();
+    save(KPT,{round:T.round+1,list:[]});pTab="draw";pSay(`${T.round}회 추첨 완료!`,true);pptView();
   });
 }
 function pAdmHTML(){
   const P=ppData(),Sh=pshop(),S=pset(),R=load(KPR,[]),pend=Sh.orders.filter(x=>!x.done),unpaid=R.flatMap((r,ri)=>(r.win||[]).map((x,wi)=>({...x,ri,wi,round:r.round})).filter(x=>!x.paid));
   const nos=cfg.names.map(n=>numOf(n)).sort((a,b)=>a-b);
-  return `<p class="h"><b>① 칭찬포인트 주기</b> — 학생을 누르고(여럿 가능) 점수를 눌러요. 이유는 학생 기록에 보여요.</p>
+  return `<p class="h"><b>① 칭찬포인트 주기</b></p>
   <div class="pstu">${nos.map(no=>`<button class="${pGive.includes(no)?"on":""}" data-g="${no}"><small>${no}</small> ${esc(pName(no))}<br><b>${+P.pts[no]||0}</b></button>`).join("")}</div>
-  <div class="tr"><input id="pwhy" class="sgi" maxlength="40" placeholder="칭찬 이유 (예: 아무도 안 할 때 먼저 발표했어요)"></div>
+  <div class="tr"><input id="pwhy" class="sgi" maxlength="40" placeholder="칭찬 이유"></div>
   <div class="tr">${[5,10,20,30,50,100].map(v=>`<button class="pri" onclick="pGiveDo(${v})">+${v}</button>`).join("")}<input id="pamt" class="nob" inputmode="numeric" placeholder="직접"><button onclick="pGiveDo(+document.getElementById('pamt').value||0)">주기</button><button onclick="pGiveDo(-(+document.getElementById('pamt').value||0))">빼기</button><button onclick="pGive=[];pptView()">선택 해제</button></div>
   <p class="h" style="margin-top:18px"><b>② 건네줄 것</b></p>
   ${pend.length||unpaid.length?"":`<p class="h">없어요.</p>`}
-  ${unpaid.map(x=>`<div class="li"><span class="tx">🍫 ${x.round}회 ${x.rank}등 — ${esc(pName(x.no))} (빼빼로 ${PRIZE[x.rank]}개)</span><button onclick="pPaid(${x.ri},${x.wi})">지급 ✓</button></div>`).join("")}
-  ${pend.map(x=>`<div class="li"><span class="tx">🍬 ${esc(x.n)} — ${esc(pName(x.no))} <span class="h">${pDay(x.t)}</span></span><button onclick="pDone(${x.t})">지급 ✓</button></div>`).join("")}
+  ${unpaid.map(x=>`<div class="li">${peps(PRIZE[x.rank])}<span class="tx">${x.round}회 ${x.rank}등 — ${esc(pName(x.no))}</span><button onclick="pPaid(${x.ri},${x.wi})">지급 ✓</button></div>`).join("")}
+  ${pend.map(x=>`<div class="li">${snkImg(x.n)}<span class="tx">${esc(x.n)} — ${esc(pName(x.no))} <span class="h">${pDay(x.t)}</span></span><button onclick="pDone(${x.t})">지급 ✓</button></div>`).join("")}
   <p class="h" style="margin-top:18px"><b>③ 과자 가게</b></p>
-  ${Sh.items.map((x,i)=>`<div class="li"><span class="tx">🍬 ${esc(x.n)}</span><b>${x.p}점</b><button onclick="ask(this,()=>{const s=pshop();s.items.splice(${i},1);save(KPS,s);pptView()})">✕</button></div>`).join("")}
+  ${Sh.items.map((x,i)=>`<div class="li">${snkImg(x.n)}<span class="tx">${esc(x.n)}</span><b>${x.p}점</b><button onclick="ask(this,()=>{const s=pshop();s.items.splice(${i},1);save(KPS,s);pptView()})">✕</button></div>`).join("")}
   <div class="tr"><input id="pin_n" class="sgi" maxlength="20" placeholder="과자 이름 (예: 사탕)"><input id="pin_p" class="nob" inputmode="numeric" placeholder="점수"><button class="pri" onclick="pItemAdd()">추가</button></div>
   <p class="h" style="margin-top:18px"><b>④ 설정</b></p>
   <div class="tr">티켓 가격 <input id="ps_pr" class="nob" inputmode="numeric" value="${S.price}">점 · 숫자 범위 1~<input id="ps_mx" class="nob" inputmode="numeric" value="${S.max}"><button onclick="pSetSave()">저장</button></div>`;
@@ -1297,7 +1336,7 @@ const SYNC_ROOM="a75c1574482b6842";
   function refresh(){
     if(!dirty)return;localStorage.setItem(KT,JSON.stringify(lt));
     const a=document.activeElement,typing=a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);
-    const modal=["am","sp"].some(i=>{const e=document.getElementById(i);return e&&getComputedStyle(e).display!=="none"});
+    const modal=["am","sp","lotto"].some(i=>{const e=document.getElementById(i);return e&&getComputedStyle(e).display!=="none"});
     if(typing||modal)return; /* 입력 중이면 끝난 뒤에 화면을 다시 그려요 */
     dirty=false;
     chk=load(KD,chk);sched=load(KS,sched);songs=load(KSG,songs);sbox=load(KBOX,sbox);
