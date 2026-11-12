@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-5">
+<meta name="build" content="2026-11-12-1">
 <title>우리 반 체크판</title>
 <style>
 :root{--bg:#f4f6fb;--card:#fff;--ink:#22263a;--sub:#6a6f85;--line:#dde1ee;--ok:#1f9d55;--okbg:#dff5e8;--no:#d6333a;--nobg:#fde3e4;--pri:#3b5bdb;--chip:#e8ecfb;
@@ -1330,7 +1330,10 @@ const SYNC_ROOM="a75c1574482b6842";
     const raw=localStorage.getItem(k);if(raw==null)return;
     fetch(base+"/"+encodeURIComponent(k)+".json",{method:"PUT",body:JSON.stringify({v:enc(raw),t,by:dev})}).catch(()=>{});
   }
-  window.syncOut=k=>{if(!ok(k))return;lt[k]=Date.now();localStorage.setItem(KT,JSON.stringify(lt));clearTimeout(tm[k]);tm[k]=setTimeout(()=>push(k,lt[k]),250)};
+  /* 처음 연동 기록을 받기 전에 생긴 변경(켜자마자 자동 지각 표시 등)은 올리지 않고 기다려요.
+     먼저 올리면 다른 기기의 출결·우유 기록을 빈 기록으로 덮어써 버려요. */
+  let ready=false;const early=new Set();
+  window.syncOut=k=>{if(!ok(k))return;if(!ready){early.add(k);return}lt[k]=Date.now();localStorage.setItem(KT,JSON.stringify(lt));clearTimeout(tm[k]);tm[k]=setTimeout(()=>push(k,lt[k]),250)};
   let dirty=false;
   function take(k,r){
     if(!ok(k)||!r||typeof r.v!=="string"||!(r.t>(lt[k]||0)))return;
@@ -1356,11 +1359,13 @@ const SYNC_ROOM="a75c1574482b6842";
     if(path==="/"&&e.type==="put"){
       const all=data||{};
       Object.keys(all).forEach(k=>take(decodeURIComponent(k),all[k]));
-      if(first){first=false; /* 처음 연결: 이 기기에만 있거나 더 새로운 기록을 올려요 */
+      if(first){first=false; /* 처음 연결: 연동 기록이 있으면 그걸 따르고, 이 기기에만 있는 기록만 올려요 */
         for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(!ok(k))continue;
           const r=all[k]||all[encodeURIComponent(k)];
-          if(!r){if(!lt[k])lt[k]=Date.now();push(k,lt[k])}else if((lt[k]||0)>r.t)push(k,lt[k])}
-        localStorage.setItem(KT,JSON.stringify(lt))}
+          if(!r){lt[k]=Math.max(lt[k]||0,early.has(k)?Date.now():1);push(k,lt[k])}else if(!early.has(k)&&(lt[k]||0)>r.t)push(k,lt[k])}
+        localStorage.setItem(KT,JSON.stringify(lt));ready=true;
+        dirty=true;refresh(); /* 받은 기록으로 화면을 다시 그리고, 자동 지각 등은 받은 기록 위에서 다시 계산해요 */
+        setTimeout(()=>{if(typeof autoCheck==="function")autoCheck()},50)}
     }else if(path==="/")Object.keys(data||{}).forEach(x=>take(decodeURIComponent(x),data[x]));
     else{const parts=path.slice(1).split("/"),k=decodeURIComponent(parts[0]);
       if(parts.length===1&&e.type==="put")take(k,data);
